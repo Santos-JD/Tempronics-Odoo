@@ -81,7 +81,7 @@ class MrpInventory(models.Model):
     )
 
     @api.multi
-    @api.depends('m_supply_method')
+    @api.depends('mrp_area_id')
     def _compute_supply_method(self):
         group_obj = self.env['procurement.group']
         for rec in self:
