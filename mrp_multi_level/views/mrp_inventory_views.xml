@@ -39,8 +39,8 @@
                 <field name="mrp_area_id"/>
                 <field name="company_id" groups="base.group_multi_company"/>
                 <field name="product_id"/>
-                <field name="date"/>
                 <field name="uom_id" groups="uom.group_uom"/>
+                <field name="date"/>
                 <field name="initial_on_hand_qty"/>
                 <field name="demand_qty"/>
                 <field name="supply_qty"/>
@@ -51,6 +51,7 @@
                         name="%(mrp_multi_level.act_mrp_inventory_procure)d"
                         icon="fa-cogs" type="action"
                         attrs="{'invisible':[('to_procure','&lt;=',0.0)]}"/>
+                <field name="m_supply_method" />
                 <field name="running_availability"/>
             </tree>
         </field>
@@ -103,6 +104,9 @@
                     <filter name="group_mrp_area"
                             string="MRP Area"
                             context="{'group_by':'mrp_area_id'}"/>
+                    <filter name="group_supply_method" 
+                            string="Supply Method" 
+                            context="{'group_by':'m_supply_method'}" />
                     <filter name="group_release_date_day"
                             string="Date to Procure (By Day)"
                             context="{'group_by':'order_release_date:day'}"/>

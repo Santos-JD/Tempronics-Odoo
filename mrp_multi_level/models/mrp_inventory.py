@@ -67,6 +67,32 @@ class MrpInventory(models.Model):
         inverse_name="mrp_inventory_id",
         readonly=True,
     )
+    ## Variable agregada Monroy 02 / 14 / 2020
+    m_supply_method = fields.Selection(
+        selection=[('buy', 'Buy'),
+                   ('none', 'Undefined'),
+                   ('manufacture', 'Produce'),
+                   ('pull', 'Pull From'),
+                   ('push', 'Push To'),
+                   ('pull_push', 'Pull & Push')],
+        string='Supply Method',
+        compute='_compute_supply_method',
+        store=True,
+    )
+
+    @api.multi
+    @api.depends('m_supply_method')
+    def _compute_supply_method(self):
+        group_obj = self.env['procurement.group']
+        for rec in self:
+            proc_loc = rec.mrp_area_id.location_id
+            values = {
+                'warehouse_id': rec.mrp_area_id.warehouse_id,
+                'company_id': self.env.user.company_id.id,
+                
+            }
+            rule = group_obj._get_rule(rec.product_id, proc_loc, values)
+            rec.m_supply_method = rule.action if rule else 'none'
 
     @api.multi
     def _compute_uom_id(self):
