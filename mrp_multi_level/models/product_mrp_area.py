@@ -134,7 +134,7 @@ class ProductMRPArea(models.Model):
     @api.multi
     def _compute_mrp_lead_time(self):
         produced = self.filtered(lambda r: r.supply_method == "manufacture")
-        purchased = self.filtered(lambda r: r.supply_method == "buy")
+        purchased = self.filtered(lambda r: r.supply_method == "buy"  or r.supply_method == "pull_push")
         for rec in produced:
             rec.mrp_lead_time = rec.product_id.produce_delay
         for rec in purchased:
@@ -167,7 +167,7 @@ class ProductMRPArea(models.Model):
                  'product_id.seller_ids')
     def _compute_main_supplier(self):
         """Simplified and similar to procurement.rule logic."""
-        for rec in self.filtered(lambda r: r.supply_method == 'buy'):
+        for rec in self.filtered(lambda r: r.supply_method == 'buy' or r.supply_method == "pull_push"):
             suppliers = rec.product_id.seller_ids.filtered(
                 lambda r: (not r.product_id or r.product_id == rec.product_id))
             if not suppliers:
