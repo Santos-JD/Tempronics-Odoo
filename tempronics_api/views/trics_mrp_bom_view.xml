@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="trics_mrp_bom_view"> <!-- model, es en donde se va a guardar la vista, id es el id de la vista -->
+            <field name="name">trics.mrp.bom.view</field><!-- Nombre del modelo -->
+            <field name="model">mrp.bom</field><!-- Modelo donde obtendra los datos-->
+            <field name="inherit_id" ref="mrp.mrp_bom_form_view"/><!-- Vista donde entrara -->
+            <field name="arch" type="xml"><!-- -->
+                <notebook position="inside"> <!-- -->
+                    <page string="Traceability">
+                        <field name="trics_id" widget="one2many_list">
+                            <tree string="Rutas" editable="bottom">
+                                <field name="material_product_tmpl_id"/>
+                                <field name="rxp_qty"/>
+                                <field name="lotes_qty"/>
+                            </tree>
+                        </field>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -11,5 +11,9 @@
         'product',
         'stock'
     ],
+    'data': [
+        'security/ir.model.access.csv',
+        'views/trics_mrp_bom_view.xml'
+    ],
     'installable': True,
 }
