@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="trics_product_template_serial_group_view" model="ir.ui.view">
+            <field name="name">trics.product.template.serial.group.view</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='group_lots_and_weight']" position="before">
+                    <group string="Seriales" name="seriales" attrs="{'invisible': [('tracking', '=', 'none')]}">
+                        <field name="serial_group" />
+                    </group>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

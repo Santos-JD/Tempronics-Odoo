@@ -10,6 +10,12 @@ class TricsSerialGroup(models.Model):
     product_count = fields.Integer(
         '# Products',
         help="The number of products under this category (Does not consider the children categories)")
+    
+    
+    
+class ProductTemplate(models.Model):
+    _inherit = 'product.template'
+    serial_group = fields.Many2one('trics.serial.group','Serial Group',help="Selecciona un grupo")
 
 """
 class TricsSerialGroupRelation(models.Model):
