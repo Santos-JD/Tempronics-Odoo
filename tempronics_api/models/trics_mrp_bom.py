@@ -9,10 +9,9 @@ class TricsMrpBom(models.Model):
     trics_bom_id = fields.Many2one('mrp.bom',index=True,ondelete='cascade')
     material_product_tmpl_id = fields.Many2one('product.template','Product(material)',required=True)
             
-    rxp_qty = fields.Integer('Requerimiento por pieza',default=1,required=True,help="Requirimiento por pieza")
-    lotes_qty = fields.Integer('Cantidad de productos por lote',default=1,required=True,help="Cantidad por lote")
+    rxp_qty = fields.Integer('Ruta por pieza',default=1,required=True,help="Ruta por pieza")
+    lotes_qty = fields.Integer('Cantidad por lote',default=1,required=True,help="Cantidad por lote")
     
-
 class MrpBom(models.Model):
     _inherit = ['mrp.bom']
     

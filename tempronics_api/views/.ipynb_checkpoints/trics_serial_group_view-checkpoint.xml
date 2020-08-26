@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <!-- Vista para visualizar el listado de trics.serial group -->
         <record id="trics_serial_group_view" model="ir.ui.view">
             <field name="name">trics.serial.group.view</field>
             <field name="model">trics.serial.group</field>
@@ -11,7 +12,7 @@
             </field>
         </record>
         
-        
+        <!-- Vista de formulario, para editar o crear un nuevo grupo -->
         <record id="trcis_serial_group_form" model="ir.ui.view">
             <field name="name">trics.serial.group.form</field>
             <field name="model">trics.serial.group</field>
@@ -23,7 +24,7 @@
                                 name="%(product.product_template_action_all)d"
                                 icon="fa-th-list"
                                 type="action"
-                                context="{'search_default_categ_id': active_id}">
+                                context="{'search_default_serial_group': active_id}">
                                 <div class="o_field_widget o_stat_info">
                                     <span class="o_stat_value"><field name="product_count"/></span>
                                     <span class="o_stat_text">Products</span>
@@ -38,19 +39,31 @@
                 </form>
             </field>
         </record>
-        
+        <!-- Vista que crea una accion de busqueda espesifica  -->
+        <record id="trics_serial_search_group" model="ir.ui.view">
+            <field name="name">trics.serial.search.group</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_search_view"/>
+            <field name="arch" type="xml">
+                  <field name="name" position="after">
+                      <field name="serial_group" filter_domain="[('serial_group', '=', raw_value)]"/>
+                  </field>
+            </field>
+        </record>
+        <!-- Action que se encarga de mostrar las vistas -->
         <record id="action_serial_group" model="ir.actions.act_window">
             <field name="name">Serial Group Traceability</field>
             <field name="res_model">trics.serial.group</field>
             <field name="view_type">form</field>
             <field name="view_mode">list,form</field>
         </record>
+        
+        <!-- Se encarga de mostrarlo en el menu de Inventory en la seccion de MasterData  -->
         <menuitem 
             action="action_serial_group"
             id="action_serial_group_menu"
             parent="stock.menu_stock_inventory_control"
             name="Serial Group Traceability"
                   sequence="1"/>
-        
     </data>
 </odoo>

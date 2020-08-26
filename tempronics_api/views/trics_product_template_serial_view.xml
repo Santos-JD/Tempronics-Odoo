@@ -6,11 +6,9 @@
             <field name="model">product.template</field>
             <field name="inherit_id" ref="product.product_template_form_view"/>
             <field name="arch" type="xml">
-                <xpath expr="//group[@name='group_lots_and_weight']" position="before">
-                    <group string="Seriales" name="seriales" attrs="{'invisible': [('tracking', '=', 'none')]}">
-                        <field name="serial_group" />
+                    <group name="traceability" position="inside" >
+                        <field name="serial_group" attrs="{'invisible': [('tracking', '!=', 'serial')]}" />
                     </group>
-                </xpath>
             </field>
         </record>
     </data>

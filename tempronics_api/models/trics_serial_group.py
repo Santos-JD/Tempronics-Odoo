@@ -8,20 +8,26 @@ class TricsSerialGroup(models.Model):
 
     name = fields.Char('Category name',index=True,required=True)
     product_count = fields.Integer(
-        '# Products',
-        help="The number of products under this category (Does not consider the children categories)")
+        '# Products', compute='_compute_product_count')
     
+    def _compute_product_count(self):
+        results = self.env['product.template'].read_group([('serial_group','in',self.ids)],['serial_group'],['serial_group'])
+        group_data = dict((data['serial_group'][0], data['serial_group_count']) for data in results)
+        for group in self:
+            count = group_data.get(group.id)
+            group.product_count = count
     
-    
+    def create(self,vals_list):
+        URL = 'http://127.0.0.1:88/api/odoo/serial_group.php'
+            
+            
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
-    serial_group = fields.Many2one('trics.serial.group','Serial Group',help="Selecciona un grupo")
-
-"""
-class TricsSerialGroupRelation(models.Model):
-    _name="trics.serial.group.relation"
-    _description = "Relacion del grupo de seriales con el numero de ensamble"
-
-    id_group = fields.Many2one('trics.serial.group',index=True,ondelete='cascade')
-    material_product_tmpl_id = fields.Many2one('product.template','Producto ensamble',required=True)"""
-
+    serial_group = fields.Many2one('trics.serial.group','Serial Group',help="Selecciona un grupo", compute='_compute_serial_group',readonly=False,store=True)
+    
+    @api.depends('tracking')
+    def _compute_serial_group(self):
+        for rec in self:
+            if rec.tracking == 'none' or rec.tracking == 'lot':
+                rec.serial_group = None
+           
