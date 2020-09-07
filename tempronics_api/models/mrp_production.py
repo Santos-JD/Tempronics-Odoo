@@ -30,6 +30,6 @@ class MrpProduction(models.Model):
 
         if not result['success']:
             raise UserError(_("Ocurrio un error al momento de generarlo para traceability\n %s" % result['msj'])) #aqui mostrar el error que ocurrio y no continuara con 
-            
-        
+
         return create
+        

@@ -33,6 +33,9 @@ class productTemplate(models.Model):
             dataEnsamble['serie'] = 0
             if vals['tracking'] == 'serial':
                 dataEnsamble['serie'] = 1
+                if not vals.get('serial_group'):
+                     raise UserError(_("Serial Group esta vacio, debes de seleccionar un grupo de seriales."))
+                dataEnsamble['serial_group'] = vals['serial_group']
             POST = requests.post(URL,data = dataEnsamble)
             result = POST.json()
             if not result['success']:
@@ -60,9 +63,16 @@ class productTemplate(models.Model):
         if values.get('tracking'):
             if values.get('tracking') == 'serial':
                 dataEnsamble['serie'] = 1
+                if values.get('serial_group'):
+                    dataEnsamble['serial_group'] = values['serial_group']
             else:
                 dataEnsamble['serie'] = 0
-        
+                self.serial_group = None
+            
+        else:
+            if values.get('serial_group'):
+                dataEnsamble['serial_group'] = values['serial_group']
+
         URL = 'http://127.0.0.1:88/api/odoo/ensamble.php'
         POST = requests.post(URL,data = dataEnsamble)
         result = POST.json()

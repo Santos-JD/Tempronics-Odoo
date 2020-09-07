@@ -13,7 +13,11 @@
     ],
     'data': [
         'security/ir.model.access.csv',
-        'views/trics_mrp_bom_view.xml'
+        'views/trics_mrp_bom_view.xml',
+        'views/trics_serial_group_view.xml',
+        'views/trics_product_template_serial_view.xml',
+        'views/tempronics_api_settings_view.xml'
     ],
     'installable': True,
 }
+
