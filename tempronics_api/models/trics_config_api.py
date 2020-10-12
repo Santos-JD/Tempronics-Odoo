@@ -12,7 +12,7 @@ class TricsConfigApi(models.Model):
     active = fields.Boolean('Accion')
 
 
-    def getconfigapi(self,inherit):
-        vmodels = self.env['ir.model'].search([('model','=',inherit)])
+    def getconfigapi(self,fmodel):
+        vmodels = self.env['ir.model'].search([('model','=',fmodel)])
         apiconfig = self.env['trics.config.api'].search([('model','=',vmodels.id)])
         return apiconfig
