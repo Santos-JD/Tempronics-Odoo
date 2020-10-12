@@ -7,6 +7,14 @@ class MrpProduction(models.Model):
 
     @api.model
     def create(self,values):
+        api = self.getconfigapi()
+            
+        if not api.active: #Si no hay configuracion de API, ejecutara la funcion super
+            raise UserError(_("Entro en el if y ejecuta la funcion return super \n %s" % api))
+            #return super(MrpProduction,self).create(values)
+
+        url = api.url
+        raise UserError(_(" Notenia que llegar aqui\n %s" % url))
         dataProduction = {} # Diccionario vacio, de lo que se mandara a la pagina
         stock_ware = self.env['stock.warehouse.orderpoint'].search([('product_id','=',values['product_id'])]) #Obtenemos el qty_multiple en caso de tener....
         product = self.env['product.product'].browse(values['product_id']).default_code #obtiene el coodigo del producto para identificarlo en traceability
@@ -21,10 +29,10 @@ class MrpProduction(models.Model):
 
         create = super(MrpProduction,self).create(values)
         
-        dataProduction['name_production'] = values['name'] 
-        URL = 'http://204.17.62.87/api/odoo/crear_orden.php' #Pagina que hara la consulta .. Se esta viendo la posibilidad de hacer esta pagina dinamica, guardandola en la base de datos de odoo (Proximamente)
-        post = requests.post(URL, data = dataProduction) #Hace la consulta por metodo POST
-        result = post.json() 
+        dataProduction['name_production'] = values['name']
+        #URL = 'http://204.17.62.87/api/odoo/crear_orden.php' #Pagina que hara la consulta .. Se esta viendo la posibilidad de hacer esta pagina dinamica, guardandola en la base de datos de odoo (Proximamente)
+        post = requests.post(URL, data = dataProduction)     #Hace la consulta por metodo POST
+        result = post.json()
         """ El valor obtenido de la pagina lo convierte a un json para poder manipuarlo mas facilmente
             en caso que el texto no este en formato para convertir, lansara un error mas grande en odoo """
 
@@ -32,4 +40,8 @@ class MrpProduction(models.Model):
             raise UserError(_("Ocurrio un error al momento de generarlo para traceability\n %s" % result['msj'])) #aqui mostrar el error que ocurrio y no continuara con 
 
         return create
-        
+    
+    def getconfigapi(self):
+        vmodels = self.env['ir.model'].search([('model','=',self._inherit)])
+        apiconfig = self.env['trics.config.api'].search([('model','=',vmodels.id)])
+        return apiconfig

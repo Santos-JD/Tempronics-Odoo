@@ -5,7 +5,7 @@ from odoo import _,api, fields,models, tools
 class productTemplate(models.Model):
     _inherit = 'product.template'
 
-   
+    
     def copy(self,default=None): #self, contiene los datos del ensamble que se va a compiar no del nuevo que se va generar.
         if default is None:
             default = {}
