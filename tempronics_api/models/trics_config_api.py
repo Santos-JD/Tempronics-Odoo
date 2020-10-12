@@ -10,4 +10,9 @@ class TricsConfigApi(models.Model):
     url = fields.Char('URL Api')
     model = fields.Many2one('ir.model','Modelos')
     active = fields.Boolean('Accion')
-    
+
+
+    def getconfigapi(self,inherit):
+        vmodels = self.env['ir.model'].search([('model','=',inherit)])
+        apiconfig = self.env['trics.config.api'].search([('model','=',vmodels.id)])
+        return apiconfig
