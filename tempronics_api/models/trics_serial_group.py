@@ -21,25 +21,31 @@ class TricsSerialGroup(models.Model):
 
     @api.model
     def create(self,values):
-        URL = 'http://127.0.0.1:88/api/odoo/serial_group.php'
+        api = self.env['trics.config.api'].getconfigapi(self._name)
+        if not api.active:
+            return super(TricsSerialGroup,self).create(values)
+        url = api.url
         create = super(TricsSerialGroup,self).create(values)
         data = {}
         data['nombre'] = values['name']
-        data['ID'] = create.id
+        data['id'] = create.id
         data['accion'] = 'create'
-        POST = requests.post(URL,data = data)
+        POST = requests.post(url,data = data)
         result = POST.json()
         if not result['success']:
             raise UserError(_("Error en serial group \n %s" % (result['msj'])))
         return create
 
     def write(self,values):
-        URL = 'http://127.0.0.1:88/api/odoo/serial_group.php'
+        api = self.env['trics.config.api'].getconfigapi(self._name)
+        if not api.active:
+            return super(TricsSerialGroup,self).write(values)
+        url = api.url
         data = {}
         data['nombre'] = values['name']
-        data['ID'] = self.id
+        data['id'] = self.id
         data['accion'] = 'write'
-        POST = requests.post(URL,data = data)
+        POST = requests.post(url,data = data)
         result = POST.json()
         if not result['success']:
             raise UserError(_("Error en serial group modificar \n %s" % (result['msj'])))
@@ -47,11 +53,14 @@ class TricsSerialGroup(models.Model):
         return super(TricsSerialGroup,self).write(values)
 
     def unlink(self):
-        URL = 'http://127.0.0.1:88/api/odoo/serial_group.php'
+        api = self.env['trics.config.api'].getconfigapi(self._name)
+        if not api.active:
+            return super(TricsSerialGroup,self).unlink()
+        url = api.url
         data = {}
-        data['ID'] = self.id
+        data['id'] = self.id
         data['accion'] = 'unlink'
-        POST = requests.post(URL,data = data)
+        POST = requests.post(url,data = data)
         result = POST.json()
         if not result['success']:
             raise UserError(_("Error en serial group eliminar \n %s" % (result['msj'])))
