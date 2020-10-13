@@ -18,7 +18,11 @@ class productTemplate(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        URL = 'http://127.0.0.1:88/api/odoo/ensamble.php'
+        api = self.env['trics.config.api'].getconfigapi(self._inherit)
+        if not api.active:
+            return super(productTemplate,self).create(vals_list)
+
+        url = api.url
         
         for vals in vals_list:
             dataEnsamble = {}
@@ -52,6 +56,12 @@ class productTemplate(models.Model):
         VALUES To create:
         {'barcode': 'XX-Test', 'default_code': 'XX-Test'} ID: False
         """
+        api = self.env['trics.config.api'].getconfigapi(self._inherit)
+        if not api.active:
+            return super(productTemplate,self).write(values)
+            
+        url = api.url
+
         dataEnsamble = {}
         dataEnsamble['accion'] = 'write'
         dataEnsamble['oldEnsamble'] = self.default_code
@@ -73,8 +83,8 @@ class productTemplate(models.Model):
             if values.get('serial_group'):
                 dataEnsamble['serial_group'] = values['serial_group']
 
-        URL = 'http://127.0.0.1:88/api/odoo/ensamble.php'
-        POST = requests.post(URL,data = dataEnsamble)
+        
+        POST = requests.post(url,data = dataEnsamble)
         result = POST.json()
         if not result['success']:
             raise UserError(_("Ocurrio un error al momento de actualizar el ensamble en sistema de produccion \n %s" % (result['msj'])))
@@ -82,11 +92,15 @@ class productTemplate(models.Model):
         return c
 
     def unlink(self):
+        api = self.env['trics.config.api'].getconfigapi(self._inherit)
+        if not api.active:
+            return  super(productTemplate,self).unlink()
+            
+        url = api.url
         dataEnsamble = {}
         dataEnsamble['accion'] = 'unlink'
         dataEnsamble['numeroensamble'] = self.default_code
-        URL = 'http://127.0.0.1:88/api/odoo/ensamble.php'
-        POST = requests.post(URL,data = dataEnsamble)
+        POST = requests.post(url,data = dataEnsamble)
         result = POST.json()
         if not result['success']:
             raise UserError(_("Ocurrio un error al momento de borrar el ensamble en sistema de produccion \n %s" % result['msj']))
