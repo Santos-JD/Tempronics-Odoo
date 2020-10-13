@@ -16,93 +16,31 @@ class productTemplate(models.Model):
         return copy
         
 
-    @api.model_create_multi
-    def create(self, vals_list):
+    @api.model
+    def create(self, values):
         api = self.env['trics.config.api'].getconfigapi(self._inherit)
         if not api.active:
-            return super(productTemplate,self).create(vals_list)
+            return super(productTemplate,self).create(values)
 
         url = api.url
         
-        for vals in vals_list:
-            dataEnsamble = {}
-            dataEnsamble['accion'] = 'create'
-            #Dato importante
-            if not vals.get('default_code'):
-                raise UserError(_("El campo {Internal Reference} es necesario para poder creearlo en el sistema de producción"))
-            dataEnsamble['descripcion'] = vals['name']
-            dataEnsamble['ensamble'] = vals['default_code']
-            dataEnsamble['categoria_id'] = vals['categ_id']
-            
-            dataEnsamble['serie'] = 0
-            if vals['tracking'] == 'serial':
-                dataEnsamble['serie'] = 1
-                if not vals.get('serial_group'):
-                     raise UserError(_("Serial Group esta vacio, debes de seleccionar un grupo de seriales."))
-                dataEnsamble['serial_group'] = vals['serial_group']
-            POST = requests.post(URL,data = dataEnsamble)
-            result = POST.json()
-            if not result['success']:
-                raise UserError(_("Error al crear un nuevo producto en el sistema de produccion: \n %s" % (result['msj'])))
-                #aqui va a crear un producto desde 0
-        templates = super(productTemplate,self).create(vals_list)
-        return templates
-
-                
-                
-                    
-    def write(self,values):
-        """
-        VALUES To create:
-        {'barcode': 'XX-Test', 'default_code': 'XX-Test'} ID: False
-        """
-        api = self.env['trics.config.api'].getconfigapi(self._inherit)
-        if not api.active:
-            return super(productTemplate,self).write(values)
-            
-        url = api.url
-
         dataEnsamble = {}
-        dataEnsamble['accion'] = 'write'
-        dataEnsamble['oldEnsamble'] = self.default_code
-        dataEnsamble['numeroensamble'] = values.get('default_code')
-        dataEnsamble['descripcion'] = values.get('name')
-        dataEnsamble['categoria_id'] = values.get('categ_id')
-        dataEnsamble['id_categoria'] = self.categ_id.id
-        dataEnsamble['baja'] = values.get('active')
-        if values.get('tracking'):
-            if values.get('tracking') == 'serial':
-                dataEnsamble['serie'] = 1
-                if values.get('serial_group'):
-                    dataEnsamble['serial_group'] = values['serial_group']
-            else:
-                dataEnsamble['serie'] = 0
-                self.serial_group = None
+        dataEnsamble['accion'] = 'create'
+        dataEnsamble['descripcion'] = values['name']
+        dataEnsamble['ensamble'] = values['default_code']
+        dataEnsamble['category'] = values['categ_id']
+        dataEnsamble['serie'] = 0
+        if values['tracking'] == 'serial':
+            dataEnsamble['serie'] = 1
+            dataEnsamble['serial_group'] = values['serial_group']
             
-        else:
-            if values.get('serial_group'):
-                dataEnsamble['serial_group'] = values['serial_group']
-
-        
+        create = super(productTemplate,self).create(values)
+        dataEnsamble['id'] = create.id
         POST = requests.post(url,data = dataEnsamble)
         result = POST.json()
         if not result['success']:
-            raise UserError(_("Ocurrio un error al momento de actualizar el ensamble en sistema de produccion \n %s" % (result['msj'])))
-        c = super(productTemplate,self).write(values)
-        return c
+            raise UserError(_("Error al crear un nuevo producto en el sistema de produccion: \ %s" % (result['msj'])))
+    
+        return create
 
-    def unlink(self):
-        api = self.env['trics.config.api'].getconfigapi(self._inherit)
-        if not api.active:
-            return  super(productTemplate,self).unlink()
-            
-        url = api.url
-        dataEnsamble = {}
-        dataEnsamble['accion'] = 'unlink'
-        dataEnsamble['numeroensamble'] = self.default_code
-        POST = requests.post(url,data = dataEnsamble)
-        result = POST.json()
-        if not result['success']:
-            raise UserError(_("Ocurrio un error al momento de borrar el ensamble en sistema de produccion \n %s" % result['msj']))
-        unlink = super(productTemplate,self).unlink()
-        return unlink
+
