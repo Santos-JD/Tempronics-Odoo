@@ -32,7 +32,7 @@ class TricsMrpBom(models.Model):
         create = super(TricsMrpBom,self).create(values)
         data = {}
         data['accion'] = 'create'
-        data['numeroenmsable'] = create.trics_bom_id.product_tmpl_id.default_code
+        data['numeroensamble'] = create.trics_bom_id.product_tmpl_id.default_code
         data['material'] = create.material_product_tmpl_id.default_code
         data['rxp'] = create.rxp_qty
         data['lotes'] = create.lotes_qty
@@ -42,7 +42,7 @@ class TricsMrpBom(models.Model):
         if not result['success']:
             raise UserError(_("Error en crear una ruta: \n %s " % (result['msj'])))
         return create
-        
+
     def write(self,values):
         api = self.env['trics.config.api'].getconfigapi(self._name)
         if not api.active:
