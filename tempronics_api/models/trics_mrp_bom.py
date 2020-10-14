@@ -16,7 +16,10 @@ class TricsMrpBom(models.Model):
 
     @api.model
     def create(self,values):
-        URL = 'http://127.0.0.1:88/api/odoo/ruta_ensamble.php'
+        api = self.env['trics.config.api'].getconfigapi(self._name)
+        if not api.active:
+            return super(TricsMrpBom,self).create(values)
+        url = api.url
         #Numero de ensamble Primario
         #Material numero de ensamble secundario
         #rxp
@@ -34,13 +37,17 @@ class TricsMrpBom(models.Model):
         data['rxp'] = create.rxp_qty
         data['lotes'] = create.lotes_qty
         data['id'] = create.id
-        POST = requests.post(URL,data=data)
+        POST = requests.post(url,data=data)
         result = POST.json()
         if not result['success']:
             raise UserError(_("Error en crear una ruta: \n %s " % (result['msj'])))
         return create
+        
     def write(self,values):
-        URL = 'http://127.0.0.1:88/api/odoo/ruta_ensamble.php'
+        api = self.env['trics.config.api'].getconfigapi(self._name)
+        if not api.active:
+            return super(TricsMrpBom,self).write(values)
+        url = api.url
         write = super(TricsMrpBom,self).write(values)
         data = {}
         data['accion'] = 'write'
@@ -49,7 +56,7 @@ class TricsMrpBom(models.Model):
         data['material'] = self.material_product_tmpl_id.default_code
         data['rxp'] = self.rxp_qty
         data['lotes'] = self.lotes_qty
-        POST = requests.post(URL,data = data)
+        POST = requests.post(url,data = data)
         result = POST.json()
         if not result['success']:
             raise UserError(_("Error al actualizar datos en ruta: \n %s" % (result['msj'])))
@@ -57,12 +64,15 @@ class TricsMrpBom(models.Model):
 
 
     def unlink(self):
-        URL = 'http://127.0.0.1:88/api/odoo/ruta_ensamble.php'
+        api = self.env['trics.config.api'].getconfigapi(self._name)
+        if not api.active:
+            return super(TricsMrpBom,self).unlink()
+        url = api.url
         unlink = super(TricsMrpBom,self).unlink()
         data = {}
         data['accion'] = 'unlink'
         data['id'] = self.id
-        POST = requests.post(URL,data=data)
+        POST = requests.post(url,data=data)
         result = POST.json()
         if not result['success']:
             raise UserError(_("Error al eliminar la ruta: \n %s" % (result['msj'])))
