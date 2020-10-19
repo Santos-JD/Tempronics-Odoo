@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data noupdate="1">
+        <!-- Add you code here -->
+
+        <!-- product.category inherit form view -->
+        <record id="trics_product_category_inherit_view_form" model="ir.ui.view">
+            <field name="name">trics.product.category.inherit.view.form</field>
+            <field name="model">product.category</field>
+            <field name="inherit_id" ref="product.product_category_form_view"/>
+            <field name="arch" type="xml">
+                <!-- Add your xpath here -->
+                <xpath expr="//field[@name='x_studio_category_description']" position="after">
+                    <field name="trics_sincronizar_ensambles" string="Sincronizar a Sistema de Produccion (Ensambles)" widget="boolean_toggle" />
+                </xpath>
+            </field>
+        </record>
+        
+    </data>
+</odoo>

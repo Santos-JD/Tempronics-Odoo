@@ -1,6 +1,6 @@
 {
     'name': 'Tempronics API',
-    'version': '12.0.1.0.0',
+    'version': '12.0.2.0.1',
     'category': 'Manufacturing',
     'author': "Jose Monroy",
     'website': 'www.tempronics.com',
@@ -16,7 +16,8 @@
         'views/trics_mrp_bom_view.xml',
         'views/trics_serial_group_view.xml',
         'views/trics_product_template_serial_view.xml',
-        'views/trics_config_api_view.xml'
+        'views/trics_config_api_view.xml',
+        'views/trics_product_category_view.xml'
     ],
     'installable': True,
 }
