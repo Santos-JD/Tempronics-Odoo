@@ -10,7 +10,7 @@
             <field name="inherit_id" ref="product.product_category_form_view"/>
             <field name="arch" type="xml">
                 <!-- Add your xpath here -->
-                <xpath expr="//field[@name='x_studio_category_description']" position="after">
+                <xpath expr="//field[@name='name']" position="after">
                     <field name="trics_sincronizar_ensambles" string="Sincronizar a Sistema de Produccion (Ensambles)" widget="boolean_toggle" />
                 </xpath>
             </field>

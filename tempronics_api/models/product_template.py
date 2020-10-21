@@ -23,7 +23,6 @@ class productTemplate(models.Model):
             return super(productTemplate,self).create(values)
 
         url = api.url
-        
         dataEnsamble = {}
         dataEnsamble['accion'] = 'create'
         dataEnsamble['descripcion'] = values['name']
@@ -34,6 +33,8 @@ class productTemplate(models.Model):
             dataEnsamble['serie'] = 1
             dataEnsamble['serial_group'] = values['serial_group']
         create = super(productTemplate,self).create(values)
+        if not create.categ_id.trics_sincronizar_ensambles:
+            return create
         dataEnsamble['id'] = create.id
         POST = requests.post(url,data = dataEnsamble)
         result = POST.json()
