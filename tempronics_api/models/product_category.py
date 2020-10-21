@@ -17,8 +17,8 @@ class productCategory(models.Model):
         data = {}
         create = super(productCategory,self).create(values)
         data['accion'] = 'create'
-        data['id'] = self.id
-        data['name'] = self.name
+        data['id'] = create.id
+        data['name'] = create.name
         POST = requests.post(url,data = data)
         result = POST.json()
         if not result['success']:
