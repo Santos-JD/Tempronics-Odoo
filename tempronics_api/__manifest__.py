@@ -1,6 +1,6 @@
 {
     'name': 'Tempronics API',
-    'version': '12.0.2.0.1',
+    'version': '12.0.2.0.2',
     'category': 'Manufacturing',
     'author': "Jose Monroy",
     'website': 'www.tempronics.com',
