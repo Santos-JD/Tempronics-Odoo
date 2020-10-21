@@ -5,6 +5,8 @@ from odoo import _,api, fields,models, tools
 class productTemplate(models.Model):
     _inherit = 'product.template'
 
+    serial_group = fields.Many2one('trics.serial.group','Serial Group',help="Selecciona un grupo")
+    trics_serial = fields.Boolean("Serial para sistema de trazabilidad")
     
     def copy(self,default=None): #self, contiene los datos del ensamble que se va a compiar no del nuevo que se va generar.
         if default is None:
@@ -29,7 +31,7 @@ class productTemplate(models.Model):
         dataEnsamble['ensamble'] = values['default_code']
         dataEnsamble['category'] = values['categ_id']
         dataEnsamble['serie'] = 0
-        if values.get('tracking') == 'serial':
+        if values.get('trics_serial'):
             dataEnsamble['serie'] = 1
             dataEnsamble['serial_group'] = values['serial_group']
         create = super(productTemplate,self).create(values)
@@ -59,7 +61,7 @@ class productTemplate(models.Model):
         dataEnsamble['category'] = self.categ_id.id
         dataEnsamble['active'] = self.active
 
-        if self.tracking == 'serial':
+        if self.trics_serial:
             dataEnsamble['serie'] = 1
             dataEnsamble['serial_group'] = self.serial_group.id
         POST = requests.post(url,data = dataEnsamble)

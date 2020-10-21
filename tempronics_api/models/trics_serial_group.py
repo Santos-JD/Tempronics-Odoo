@@ -67,10 +67,6 @@ class TricsSerialGroup(models.Model):
 
         return super(TricsSerialGroup,self).unlink()
             
-            
-class ProductTemplate(models.Model):
-    _inherit = 'product.template'
-    serial_group = fields.Many2one('trics.serial.group','Serial Group',help="Selecciona un grupo")
     
 
            
