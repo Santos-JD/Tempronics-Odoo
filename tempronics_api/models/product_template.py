@@ -59,7 +59,10 @@ class productTemplate(models.Model):
         dataEnsamble['ensamble'] = self.default_code
         dataEnsamble['descripcion'] = self.name
         dataEnsamble['category'] = self.categ_id.id
-        dataEnsamble['active'] = self.active
+        
+        dataEnsamble['active'] = 0
+        if not self.active:
+            dataEnsamble['active'] = 1
 
         if self.trics_serial:
             dataEnsamble['serie'] = 1
