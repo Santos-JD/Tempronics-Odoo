@@ -1,4 +1,5 @@
 import requests
+import json
 from odoo.exceptions import UserError
 from odoo import _,api, fields,models
 
@@ -30,10 +31,15 @@ class MrpProduction(models.Model):
         
         dataProduction['name_production'] = values['name']
         post = requests.post(url, data = dataProduction)     #Hace la consulta por metodo POST
-        result = post.json()
+        textresult = post.text
+        try:
+            result = json.loads(textresult)
+        except json.JSONDecodeError as e:
+            raise UserError(_("Ocurrio un error al momento de generarlo para traceability\n %s \n %s" % (e,textresult)))
+
         """ El valor obtenido de la pagina lo convierte a un json para poder manipuarlo mas facilmente
             en caso que el texto no este en formato para convertir, lansara un error mas grande en odoo """
-
+        
         if not result['success']:
             raise UserError(_("Ocurrio un error al momento de generarlo para traceability\n %s" % result['msj'])) #aqui mostrar el error que ocurrio y no continuara con 
 
