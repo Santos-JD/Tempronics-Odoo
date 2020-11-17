@@ -21,49 +21,34 @@ class TricsSerialGroup(models.Model):
 
     @api.model
     def create(self,values):
-        api = self.env['trics.config.api'].getconfigapi(self._name)
-        if not api.active:
-            return super(TricsSerialGroup,self).create(values)
-        url = api.url
         create = super(TricsSerialGroup,self).create(values)
         data = {}
         data['nombre'] = values['name']
         data['id'] = create.id
         data['accion'] = 'create'
-        POST = requests.post(url,data = data)
-        result = POST.json()
-        if not result['success']:
-            raise UserError(_("Error en serial group \n %s" % (result['msj'])))
+        Api = self.env['trics.config.api'].RequestsHttpApi(self._name,data)
+        if not Api:
+            raise UserError(_("Ocurrio un error al momento de generarlo para traceability\n %s" % result['msj']))
         return create
 
     def write(self,values):
-        api = self.env['trics.config.api'].getconfigapi(self._name)
-        if not api.active:
-            return super(TricsSerialGroup,self).write(values)
-        url = api.url
         data = {}
         data['nombre'] = values['name']
         data['id'] = self.id
         data['accion'] = 'write'
-        POST = requests.post(url,data = data)
-        result = POST.json()
-        if not result['success']:
-            raise UserError(_("Error en serial group modificar \n %s" % (result['msj'])))
+        Api = self.env['trics.config.api'].RequestsHttpApi(self._name,data)
+        if not Api:
+            raise UserError(_("Ocurrio un error al momento de generarlo para traceability\n %s" % result['msj']))
 
         return super(TricsSerialGroup,self).write(values)
 
     def unlink(self):
-        api = self.env['trics.config.api'].getconfigapi(self._name)
-        if not api.active:
-            return super(TricsSerialGroup,self).unlink()
-        url = api.url
         data = {}
         data['id'] = self.id
         data['accion'] = 'unlink'
-        POST = requests.post(url,data = data)
-        result = POST.json()
-        if not result['success']:
-            raise UserError(_("Error en serial group eliminar \n %s" % (result['msj'])))
+        Api = self.env['trics.config.api'].RequestsHttpApi(self._name,data)
+        if not Api:
+            raise UserError(_("Ocurrio un error al momento de generarlo para traceability\n %s" % result['msj']))
 
         return super(TricsSerialGroup,self).unlink()
             

@@ -11,15 +11,12 @@ class TricsMrpBom(models.Model):
     material_product_tmpl_id = fields.Many2one('product.template','Product(material)',required=True)
     rxp_qty = fields.Integer('Ruta por pieza',default=1,required=True,help="Ruta por pieza")
     lotes_qty = fields.Integer('Cantidad por lote',default=1,required=True,help="Cantidad por lote")
+    btn_delete = fields.Boolean("Si esta activo no se puede eliminar", default=False)
 
 
 
     @api.model
     def create(self,values):
-        api = self.env['trics.config.api'].getconfigapi(self._name)
-        if not api.active:
-            return super(TricsMrpBom,self).create(values)
-        url = api.url
         #Numero de ensamble Primario
         #Material numero de ensamble secundario
         #rxp
@@ -33,49 +30,43 @@ class TricsMrpBom(models.Model):
         data = {}
         data['accion'] = 'create'
         data['numeroensamble'] = create.trics_bom_id.product_tmpl_id.default_code
+        data['id_ensamble'] = create.trics_bom_id.product_tmpl_id.id
         data['material'] = create.material_product_tmpl_id.default_code
+        data['id_material'] = create.material_product_tmpl_id.id
+        data['id_bom'] = create.trics_bom_id.id
         data['rxp'] = create.rxp_qty
         data['lotes'] = create.lotes_qty
         data['id'] = create.id
-        POST = requests.post(url,data=data)
-        result = POST.json()
-        if not result['success']:
-            raise UserError(_("Error en crear una ruta: \n %s " % (result['msj'])))
+        Api = self.env['trics.config.api'].RequestsHttpApi(self._name,data)
+        if not Api:
+            raise UserError(_("Ocurrio un error al momento de generarlo para traceability\n %s" % result['msj']))
         return create
 
     def write(self,values):
-        api = self.env['trics.config.api'].getconfigapi(self._name)
-        if not api.active:
-            return super(TricsMrpBom,self).write(values)
-        url = api.url
         write = super(TricsMrpBom,self).write(values)
         data = {}
         data['accion'] = 'write'
         data['id'] = self.id
         data['numeroensamble'] = self.trics_bom_id.product_tmpl_id.default_code
+        data['id_ensamble'] = self.trics_bom_id.product_tmpl_id.id
         data['material'] = self.material_product_tmpl_id.default_code
+        data['id_material'] = self.material_product_tmpl_id.id
         data['rxp'] = self.rxp_qty
         data['lotes'] = self.lotes_qty
-        POST = requests.post(url,data = data)
-        result = POST.json()
-        if not result['success']:
-            raise UserError(_("Error al actualizar datos en ruta: \n %s" % (result['msj'])))
+        Api = self.env['trics.config.api'].RequestsHttpApi(self._name,data)
+        if not Api:
+            raise UserError(_("Ocurrio un error al momento de generarlo para traceability\n %s" % result['msj']))
         return write
 
 
     def unlink(self):
-        api = self.env['trics.config.api'].getconfigapi(self._name)
-        if not api.active:
-            return super(TricsMrpBom,self).unlink()
-        url = api.url
         unlink = super(TricsMrpBom,self).unlink()
         data = {}
         data['accion'] = 'unlink'
         data['id'] = self.id
-        POST = requests.post(url,data=data)
-        result = POST.json()
-        if not result['success']:
-            raise UserError(_("Error al eliminar la ruta: \n %s" % (result['msj'])))
+        Api = self.env['trics.config.api'].RequestsHttpApi(self._name,data)
+        if not Api:
+            raise UserError(_("Ocurrio un error al momento de generarlo para traceability\n %s" % result['msj']))
         return unlink
 
 class MrpBom(models.Model):
@@ -87,7 +78,5 @@ class MrpBom(models.Model):
         values = self.env['trics.mrp.bom'].search([('trics_bom_id','=',self.id)])
         for value in values:
             value.unlink()
-
         u = super(MrpBom,self).unlink()
         return u
-        

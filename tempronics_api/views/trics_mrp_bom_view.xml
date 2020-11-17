@@ -9,10 +9,12 @@
                 <notebook position="inside"> <!-- -->
                     <page string="Traceability">
                         <field name="trics_id" widget="one2many_list">
-                            <tree string="Rutas" editable="bottom">
+                            <tree string="Rutas" editable="bottom" delete="false">
                                 <field name="material_product_tmpl_id"/>
                                 <field name="rxp_qty"/>
                                 <field name="lotes_qty"/>
+                                <field name="btn_delete" groups="base.group_no_one"/>
+                                <button name="unlink" icon="fa-trash-o" type="object" string="Delete"  attrs="{'invisible': [('btn_delete', '=', True)]}" />
                             </tree>
                         </field>
                     </page>

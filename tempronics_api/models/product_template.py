@@ -20,11 +20,6 @@ class productTemplate(models.Model):
 
     @api.model
     def create(self, values):
-        api = self.env['trics.config.api'].getconfigapi(self._inherit)
-        if not api.active:
-            return super(productTemplate,self).create(values)
-
-        url = api.url
         dataEnsamble = {}
         dataEnsamble['accion'] = 'create'
         dataEnsamble['descripcion'] = values['name']
@@ -38,19 +33,14 @@ class productTemplate(models.Model):
         if not create.categ_id.trics_sincronizar_ensambles:
             return create
         dataEnsamble['id'] = create.id
-        POST = requests.post(url,data = dataEnsamble)
-        result = POST.json()
-        if not result['success']:
-            raise UserError(_("Error al crear un nuevo producto en el sistema de produccion: \ %s" % (result['msj'])))
+        Api = self.env['trics.config.api'].RequestsHttpApi(self._inherit,dataEnsamble)
+        if not Api:
+            raise UserError(_("Ocurrio un error al momento de generarlo para traceability\n %s" % result['msj'])) #aqui mostrar el error que ocurrio y no continuara con 
         return create
 
 
 
     def write(self,values):
-        api = self.env['trics.config.api'].getconfigapi(self._inherit)
-        if not api.active:
-            return super(productTemplate,self).write(values)
-        
         write = super(productTemplate,self).write(values)
         url = api.url
         dataEnsamble = {}
@@ -63,28 +53,23 @@ class productTemplate(models.Model):
         dataEnsamble['active'] = 0
         if not self.active:
             dataEnsamble['active'] = 1
-
+        
+        dataEnsamble['serie'] = 0
         if self.trics_serial:
             dataEnsamble['serie'] = 1
             dataEnsamble['serial_group'] = self.serial_group.id
-        POST = requests.post(url,data = dataEnsamble)
-        result = POST.json()
-        if not result['success']:
-            raise UserError(_("Ocurrio un error al momento de actualiza el ensamble de produccion \n %s" % (result['msj'])))
+        Api = self.env['trics.config.api'].RequestsHttpApi(self._inherit,dataEnsamble)
+        if not Api:
+            raise UserError(_("Ocurrio un error al momento de generarlo para traceability\n %s" % result['msj'])) #aqui mostrar el error que ocurrio y no continuara con 
         return write
 
     def unlink(self):
-        api = self.env['trics.config.api'].getconfigapi(self._inherit)
-        if not api.active:
-            return super(productTemplate,self).unlink()
-
         url = api.url
         dataEnsamble = {}
         dataEnsamble['accion'] = 'unlink'
         dataEnsamble['id'] = self.id
+        Api = self.env['trics.config.api'].RequestsHttpApi(self._inherit,dataEnsamble)
+        if not Api:
+            raise UserError(_("Ocurrio un error al momento de generarlo para traceability\n %s" % result['msj'])) #aqui mostrar el error que ocurrio y no continuara con 
 
-        POST = requests.post(url,data = dataEnsamble)
-        result = POST.json()
-        if not result['success']:
-            raise UserError(_("Ocurrio un error al momento de eliminar el ensamble de produccion \n %s" % (result['msj'])))
         return super(productTemplate,self).unlink()
