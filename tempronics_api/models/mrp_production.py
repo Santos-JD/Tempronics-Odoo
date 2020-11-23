@@ -1,4 +1,3 @@
-import requests
 from odoo.exceptions import UserError
 from odoo import _,api, fields,models
 
@@ -15,6 +14,7 @@ class MrpProduction(models.Model):
         if stock_ware:
             qty = stock_ware.qty_multiple
         
+        dataProduction['accion'] = 'create'
         dataProduction['qty_multiple'] = qty
         dataProduction['product_qty'] = values['product_qty']
         dataProduction['date_planned_start'] = values['date_planned_start']
@@ -27,3 +27,16 @@ class MrpProduction(models.Model):
             raise UserError(_("Ocurrio un error al momento se generarlo para traceability\n %s" % result['msj'])) #aqui mostrar el error que ocurrio y no continuara con 
 
         return create
+
+    def write(self,values):
+        #{'state': 'cancel', 'is_locked': True}
+
+        if values.get('state') == 'cancel' and values.get('is_locked'):
+            dataProduccion = {}
+            dataProduccion['accion'] = 'unlink' # se mandara a eliminar, por que no nos servira tener el registro, si ya se encuentra en Odoo
+            dataProduccion['name_production'] = self.name
+            Api = self.env['trics.config.api'].RequestsHttpApi(self._inherit,dataProduccion)
+            if not Api:
+                raise UserError(_("Ocurrio un error al cambiar el estado a cancelado"))
+
+        return super(MrpProduction,self).write(values)

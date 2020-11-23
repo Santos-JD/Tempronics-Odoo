@@ -1,6 +1,5 @@
 from odoo.exceptions import UserError
 from odoo import _,api, fields,models, tools
-import requests
 
 class TricsSerialGroup(models.Model):
     _name="trics.serial.group"

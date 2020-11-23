@@ -1,4 +1,3 @@
-import requests
 from odoo.exceptions import UserError
 from odoo import _,api, fields,models, tools
 
@@ -42,7 +41,6 @@ class productTemplate(models.Model):
 
     def write(self,values):
         write = super(productTemplate,self).write(values)
-        url = api.url
         dataEnsamble = {}
         dataEnsamble['accion'] = 'write'
         dataEnsamble['id'] = self.id
@@ -64,7 +62,6 @@ class productTemplate(models.Model):
         return write
 
     def unlink(self):
-        url = api.url
         dataEnsamble = {}
         dataEnsamble['accion'] = 'unlink'
         dataEnsamble['id'] = self.id
