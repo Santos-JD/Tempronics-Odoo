@@ -12,10 +12,10 @@ class Partner(models.Model):
 class Category(models.Model):
     _inherit = 'product.category'
 
-    obj = fields.Many2many('wizard.stock.history', 'categ_wiz_rel', 'wiz', 'categ', invisible=True)
+    obj = fields.Many2many('wizard.stock.history', 'categ_loc_rel', 'loc', 'categ', invisible=True)
 
 
-class Warehouse(models.Model):
-    _inherit = 'stock.warehouse'
+class Location(models.Model):
+    _inherit = 'stock.location'
 
-    obj = fields.Many2many('wizard.stock.history',  'wh_wiz_rel', 'wiz', 'wh', invisible=True)
+    obj = fields.Many2many('wizard.stock.history',  'wh_loc_rel', 'loc', 'wh', invisible=True)
