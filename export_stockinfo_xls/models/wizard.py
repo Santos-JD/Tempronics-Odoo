@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
-from odoo import models, fields, api
-
+from odoo import _,models, fields, api
 
 class StockReport(models.TransientModel):
     _name = "wizard.stock.history"
     _description = "Current Stock History"
 
-    location = fields.Many2many('stock.location', 'wh_loc_rel', 'wh', 'loc', string='Location', required=True)
-    category = fields.Many2many('product.category', 'categ_loc_rel', 'categ', 'loc', string='Location')
+    #Se tiene que hacer dinamico esta parte
+    _default_location = [13, 86, 18, 12, 21]
+    _default_category = [4]
+    location = fields.Many2many('stock.location', 'wh_loc_rel', 'wh', 'loc', string='Location', default=_default_location)
+    category = fields.Many2many('product.category', 'categ_loc_rel', 'categ', 'loc', string='Category',default=_default_category)
 
     @api.multi
     def export_xls(self):

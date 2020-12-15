@@ -15,14 +15,14 @@ class StockReportXls(models.AbstractModel):
         l1 = []
         l2 = []
         for j in obj:
-            l1.append(j.name)
+            l1.append(j.display_name)
             l2.append(j.id)
         return l1, l2
 
     def generate_xlsx_report(self, workbook, data, lines):
         d = lines.category
         get_location = self.get_location(lines)
-        count = len(get_location[0]) + 10
+        count = len(get_location[0]) + 7
         comp = self.env.user.company_id.name
         sheet = workbook.add_worksheet('Stock Info')
         format0 = workbook.add_format({'font_size': 20, 'align': 'center', 'bold': True})
@@ -51,29 +51,33 @@ class StockReportXls(models.AbstractModel):
             for i in d1:
                 c.append(self.env['product.category'].browse(i).name)
             cat = cat.join(c)
-            sheet.merge_range(1, 0, 1, 1, 'Category(s) : ', format4)
-            sheet.merge_range(1, 2, 1, 3 + len(d1), cat, format4)
+            #sheet.merge_range(1, 0, 1, 1, 'Category(s) : ', format4)
+            sheet.write(1, 0, 'Category(s) : ', format4)
+            #sheet.merge_range(1, 2, 1, 3 + len(d1), cat, format4)
+            sheet.write(1, 2, cat, format4)
         
         user = self.env['res.users'].browse(self.env.uid)
         tz = pytz.timezone(user.tz)
         time = pytz.utc.localize(datetime.now()).astimezone(tz)
         sheet.merge_range('A4:G4', 'Report Date: ' + str(time.strftime("%Y-%m-%d %H:%M %p")), format1)
-        sheet.merge_range(4, 11, 4, count, 'Locations', format1)
-        sheet.merge_range('A5:G5', 'Product Information', format11)
-        w_col_no = 10
-        w_col_no1 = 11
+        sheet.merge_range(4, 8, 4, count, 'Locations', format1)
+        sheet.merge_range('A5:H5', 'Product Information', format11)
+        w_col_no = 8
+        w_col_no1 = 8
         for i in get_location[0]:
             sheet.write(5, w_col_no1, i, format11)
             w_col_no1 = w_col_no1 + 1
         format21.set_border()
         sheet.write(5, 0, 'SKU', format21)
-        sheet.merge_range(5, 1, 5, 3, 'Name', format21)
-        sheet.merge_range(5, 4, 5, 5, 'Category', format21)
-        sheet.write(5, 6, 'Cost Price', format21)
-        sheet.write(5, 7, 'UM', format21) #unidad de medida
-        sheet.write(5, 8, 'LT', format21) #LiteTime
-        sheet.write(5, 9, 'Supplier', format21)
-        sheet.write(5, 10, 'Origen', format21)
+        #sheet.merge_range(5, 1, 5, 3, 'Name', format21)
+        sheet.write(5, 1,'Name',format21)
+        #sheet.merge_range(5, 4, 5, 5, 'Category', format21)
+        sheet.write(5, 2,'Category',format21)
+        sheet.write(5, 3, 'Cost Price', format21)
+        sheet.write(5, 4, 'UM', format21) #unidad de medida
+        sheet.write(5, 5, 'LT', format21) #LiteTime
+        sheet.write(5, 6, 'Supplier', format21)
+        sheet.write(5, 7, 'Country', format21)
         sheet.write(5,count+1,'Total',format21)
         #sheet.write(5,count+2,'Reserved',format21)
         #sheet.write(5,count+3,'BAL',format21)
@@ -87,17 +91,19 @@ class StockReportXls(models.AbstractModel):
             get_line = self.get_lines(d, i)
             for each in get_line:
                 sheet.write(prod_row, prod_col, each['sku'], font_size_8)
-                sheet.merge_range(prod_row, prod_col + 1, prod_row, prod_col + 3, each['name'], font_size_8_l)
-                sheet.merge_range(prod_row, prod_col + 4, prod_row, prod_col + 5, each['category'], font_size_8_l)
-                sheet.write(prod_row, prod_col + 6, each['cost_price'], font_size_8_r)
-                sheet.write(prod_row, prod_col + 7, each['um'], font_size_8_r)
-                sheet.write(prod_row, prod_col + 8, each['lt'], font_size_8_r)
-                sheet.write(prod_row, prod_col + 9, each['vendor'], font_size_8_r)
-                sheet.write(prod_row, prod_col + 10, each['country'], font_size_8_r)
+                #sheet.merge_range(prod_row, prod_col + 1, prod_row, prod_col + 3, each['name'], font_size_8_l)
+                sheet.write(prod_row,prod_col + 1, each['name'], font_size_8_l)
+                #sheet.merge_range(prod_row, prod_col + 2, prod_row, prod_col + 5, each['category'], font_size_8_l)
+                sheet.write(prod_row,prod_col + 2, each['category'], font_size_8)
+                sheet.write(prod_row, prod_col + 3, each['cost_price'], font_size_8)
+                sheet.write(prod_row, prod_col + 4, each['um'], font_size_8)
+                sheet.write(prod_row, prod_col + 5, each['lt'], font_size_8)
+                sheet.write(prod_row, prod_col + 6, each['vendor'], font_size_8)
+                sheet.write(prod_row, prod_col + 7, each['country'], font_size_8)
                 prod_row = prod_row + 1
             break
         prod_row = 6
-        prod_col = 11
+        prod_col = 8
         red_mark.set_border()
         
         for i in get_location[1]:
@@ -110,7 +116,7 @@ class StockReportXls(models.AbstractModel):
                 prod_row = prod_row + 1
             prod_row = 6
             prod_col = prod_col + 1
-
+        
 
             # continue
 
