@@ -36,7 +36,7 @@ class FlattenedBomXlsx(models.AbstractModel):
         sheet.write(i, 4, bom.product_uom_id.name or '')
         totals = self.get_totals(bom.product_tmpl_id.id,locations)
         
-        col_wt = 6
+        col_wt = 5
         for l in range(0,len(totals)):
             sheet.write(i,col_wt,totals[l])
             col_wt += 1
@@ -51,7 +51,7 @@ class FlattenedBomXlsx(models.AbstractModel):
             sheet.write(i, 4, product.uom_id.name or '')
             #sheet.write(i, 5, product.code or '')
             totals = self.get_totals(product.product_tmpl_id.id,locations)
-            col_wt = 6
+            col_wt = 5
             for l in range(0,len(totals)):
                 sheet.write(i,col_wt,totals[l])
                 col_wt += 1
