@@ -27,52 +27,42 @@ class FlattenedBomXlsx(models.AbstractModel):
         totals.append(total)
         return totals
 
-    def print_flattened_bom_lines(self, bom, requirements, sheet, row, locations):
+    def print_flattened_bom_lines(self, bom, requirements, sheet, row, locations, cell_style):
         i = row
-        sheet.write(i, 0, bom.product_tmpl_id.name or '')
-        sheet.write(i, 1, bom.code or '')
-        sheet.write(i, 2, bom.display_name or '')
-        sheet.write(i, 3, bom.product_qty)
-        sheet.write(i, 4, bom.product_uom_id.name or '')
+        sheet.write(i, 0, bom.product_tmpl_id.name or '',cell_style)
+        sheet.write(i, 1, bom.code or '',cell_style)
+        sheet.write(i, 2, bom.display_name or '',cell_style)
+        sheet.write(i, 3, bom.product_qty,cell_style)
+        sheet.write(i, 4, bom.product_uom_id.name or '',cell_style)
+        sheet.write(i, 5, bom.product_tmpl_id.standard_price or '',cell_style)
         totals = self.get_totals(bom.product_tmpl_id.id,locations)
-        
-        col_wt = 5
-        for l in range(0,len(totals)):
-            sheet.write(i,col_wt,totals[l])
-            col_wt += 1
-
+        sheet.write_row(i,6,totals,cell_style)
 
         #sheet.write(i, 5, bom.code or '')
         i += 1
         for product, total_qty in requirements.items():
-            sheet.write(i, 1, product.default_code or '')
-            sheet.write(i, 2, product.display_name or '')
-            sheet.write(i, 3, total_qty or 0.0)
-            sheet.write(i, 4, product.uom_id.name or '')
-            #sheet.write(i, 5, product.code or '')
+            sheet.write(i, 1, product.default_code or '',cell_style)
+            sheet.write(i, 2, product.display_name or '',cell_style)
+            sheet.write(i, 3, total_qty or 0.0,cell_style)
+            sheet.write(i, 4, product.uom_id.name or '',cell_style)
+            sheet.write(i, 5, product.product_tmpl_id.standard_price or 0.0,cell_style)
             totals = self.get_totals(product.product_tmpl_id.id,locations)
-            col_wt = 5
-            for l in range(0,len(totals)):
-                sheet.write(i,col_wt,totals[l])
-                col_wt += 1
-
+            sheet.write_row(i,6,totals,cell_style)
             i += 1
         return i
 
     def generate_xlsx_report(self, workbook, data, objects):
-        workbook.set_properties({
-            'comments': 'Created with Python and XlsxWriter from Odoo 11.0'})
         sheet = workbook.add_worksheet(_('Flattened BOM'))
         sheet.set_landscape()
         sheet.fit_to_pages(1, 0)
         sheet.set_zoom(80)
-        sheet.set_column(1, 2, 20)
-        sheet.set_column(3, 3, 40)
-        sheet.set_column(4, 6, 20)
+        sheet.set_column(1, 1, 20)
+        sheet.set_column(2, 2, 40)
+        sheet.set_column(3, 3, 10)
+        sheet.set_column(4, 6, 10)
         title_style = workbook.add_format({'bold': True,
-                                           'bg_color': '#FFFFCC',
-                                           'bottom': 1})
-
+                                           'bottom': 1 ,'align': 'center','border': 1})
+        cell_style = workbook.add_format({'border': 1,'align': 'center'})
         locations = self.env['stock.location'].search([('id', 'in', [13, 86, 18, 12, 21])])
 
         sheet_title = [_('BOM Name'),
@@ -80,13 +70,18 @@ class FlattenedBomXlsx(models.AbstractModel):
                        _('Product Name'),
                        _('Quantity'),
                        _('UM'),
+                       _('Price'),
                        ]
         for location in locations:
-            sheet_title.append(_(location.display_name))
+            name = location.display_name
+            c = name.split("/")
+            if len(c) >= 3:
+                name = name.split("/",1)[-1]
+            sheet_title.append(_(name))
 
         sheet_title.append(_('Total'))
         #sheet.set_row(0, None, None, {'collapsed': 1})
-        sheet.write_row(0,0,"Reporte # 2: Requerimiento de Materiales por Numero de Parte",title_style)
+        sheet.write(0, 0,"Reporte # 2: Requerimiento de Materiales por Numero de Parte",title_style)
         sheet.write_row(1, 0, sheet_title, title_style)
         sheet.freeze_panes(2, 0)
         i = 2
@@ -96,4 +91,4 @@ class FlattenedBomXlsx(models.AbstractModel):
             starting_factor = o.product_uom_id._compute_quantity(
                 o.product_qty, o.product_tmpl_id.uom_id, round=False)
             totals = o._get_flattened_totals(factor=starting_factor)
-            i = self.print_flattened_bom_lines(o, totals, sheet, i, locations)
+            i = self.print_flattened_bom_lines(o, totals, sheet, i, locations, cell_style)

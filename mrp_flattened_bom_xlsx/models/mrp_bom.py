@@ -24,7 +24,7 @@ class MrpBom(models.Model):
             self.product_qty, self.product_tmpl_id.uom_id, round=False)
         for line in self.bom_line_ids:
             sub_bom = self._bom_find(product=line.product_id)
-            if sub_bom:
+            if sub_bom and sub_bom.product_tmpl_id.default_code != '850-01008': # no quieren ver el BOM de la cadena
                 new_factor = factor * line.product_uom_id._compute_quantity(
                     line.product_qty, line.product_id.uom_id, round=False)
                 sub_bom._get_flattened_totals(new_factor, totals)
