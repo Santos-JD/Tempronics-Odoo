@@ -37,7 +37,7 @@ class FlattenedBomXlsx(models.AbstractModel):
         sheet.write(i, 5, bom.product_tmpl_id.standard_price or '',cell_style)
         totals = self.get_totals(bom.product_tmpl_id.id,locations)
         sheet.write_row(i,6,totals,cell_style)
-
+        
         #sheet.write(i, 5, bom.code or '')
         i += 1
         for product, total_qty in requirements.items():
@@ -54,15 +54,26 @@ class FlattenedBomXlsx(models.AbstractModel):
     def generate_xlsx_report(self, workbook, data, objects):
         sheet = workbook.add_worksheet(_('Flattened BOM'))
         sheet.set_landscape()
-        sheet.fit_to_pages(1, 0)
+        sheet.fit_to_pages(0, 1)
         sheet.set_zoom(80)
-        sheet.set_column(1, 1, 20)
-        sheet.set_column(2, 2, 40)
-        sheet.set_column(3, 3, 10)
-        sheet.set_column(4, 6, 10)
+       
+            #sheet.set_column(0, i, 10)
+
+        #sheet.set_column(0, 1, 17)
+        sheet.set_column(0, 0, 25)
+        sheet.set_column(1, 0, 18)
+        sheet.set_column(2, 0, 56)
+        for j in range(3,11):
+            sheet.set_column(j, 0, 10) # las ajusta au tamaño
+        #sheet.set_column(0, 2, 60)
+
         title_style = workbook.add_format({'bold': True,
                                            'bottom': 1 ,'align': 'center','border': 1})
         cell_style = workbook.add_format({'border': 1,'align': 'center'})
+        #estilo rojo
+        cell_red_style = workbook.add_format({'border':1,'align':'center',
+                                                'bg_color': '#FFC7CE',
+                                                'font_color': '#9C0006'})
         locations = self.env['stock.location'].search([('id', 'in', [13, 86, 18, 12, 21])])
 
         sheet_title = [_('BOM Name'),
@@ -72,15 +83,16 @@ class FlattenedBomXlsx(models.AbstractModel):
                        _('UM'),
                        _('Price'),
                        ]
+        #Requisicion de Ibarra, no quiere los nombres completos de todas las demas locaciones
+        #solo estas locaciones necesitan el nombre completo, por que se pueden confundir.
+        namesshorts = ['WH/Input','WH/Stock','DGWH/Stock']
         for location in locations:
             name = location.display_name
-            c = name.split("/")
-            if len(c) >= 3:
-                name = name.split("/",1)[-1]
+            if name not in namesshorts:
+                name = location.name
             sheet_title.append(_(name))
 
         sheet_title.append(_('Total'))
-        #sheet.set_row(0, None, None, {'collapsed': 1})
         sheet.write(0, 0,"Reporte # 2: Requerimiento de Materiales por Numero de Parte",title_style)
         sheet.write_row(1, 0, sheet_title, title_style)
         sheet.freeze_panes(2, 0)
@@ -92,3 +104,9 @@ class FlattenedBomXlsx(models.AbstractModel):
                 o.product_qty, o.product_tmpl_id.uom_id, round=False)
             totals = o._get_flattened_totals(factor=starting_factor)
             i = self.print_flattened_bom_lines(o, totals, sheet, i, locations, cell_style)
+
+        #Se encarga de seleccionar toda el aera de las cantidades con la condicion si, el valor es < a 0 coloca el estilo rojo
+        sheet.conditional_format(2,6,i,len(locations)+6,{'type':     'cell',
+                                          'criteria': '<',
+                                          'value':    0,
+                                          'format':   cell_red_style})

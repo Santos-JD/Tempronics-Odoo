@@ -10,12 +10,16 @@ class StockReportXls(models.AbstractModel):
     _inherit = 'report.report_xlsx.abstract'
 
     def get_location(self, data):
+        namesshorts = ['WH/Input','WH/Stock','DGWH/Stock']
         wh = data.location.mapped('id')
         obj = self.env['stock.location'].search([('id', 'in', wh)])
         l1 = []
         l2 = []
         for j in obj:
-            l1.append(j.display_name)
+            name = j.display_name
+            if name not in namesshorts:
+                name = j.name
+            l1.append(name)
             l2.append(j.id)
         return l1, l2
 
