@@ -60,12 +60,11 @@ class FlattenedBomXlsx(models.AbstractModel):
             #sheet.set_column(0, i, 10)
 
         #sheet.set_column(0, 1, 17)
-        sheet.set_column(0, 0, 25)
-        sheet.set_column(1, 0, 18)
-        sheet.set_column(2, 0, 56)
-        for j in range(3,11):
-            sheet.set_column(j, 0, 10) # las ajusta au tamaño
-        #sheet.set_column(0, 2, 60)
+        sheet.set_column(0, 0, 30)
+        sheet.set_column(1, 1, 18)
+        sheet.set_column(2, 2, 56)
+        sheet.set_column(3, 11, 13)
+        
 
         title_style = workbook.add_format({'bold': True,
                                            'bottom': 1 ,'align': 'center','border': 1})

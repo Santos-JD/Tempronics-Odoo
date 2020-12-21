@@ -73,9 +73,7 @@ class StockReportXls(models.AbstractModel):
             w_col_no1 = w_col_no1 + 1
         format21.set_border()
         sheet.write(5, 0, 'SKU', format21)
-        #sheet.merge_range(5, 1, 5, 3, 'Name', format21)
         sheet.write(5, 1,'Name',format21)
-        #sheet.merge_range(5, 4, 5, 5, 'Category', format21)
         sheet.write(5, 2,'Category',format21)
         sheet.write(5, 3, 'Cost Price', format21)
         sheet.write(5, 4, 'UM', format21) #unidad de medida
@@ -85,7 +83,14 @@ class StockReportXls(models.AbstractModel):
         sheet.write(5,count+1,'Total',format21)
         #sheet.write(5,count+2,'Reserved',format21)
         #sheet.write(5,count+3,'BAL',format21)
-
+        sheet.set_column(1, 1, 42)
+        sheet.set_column(2, 2, 14)
+        sheet.set_column(3, 3, 10)
+        sheet.set_column(4, 4, 6)
+        sheet.set_column(5, 5, 3)
+        sheet.set_column(6, 6, 34)
+        sheet.set_column(7, 7, 7)
+        sheet.set_column(8, count+1, 14)
         prod_row = 6
         prod_col = 0
         font_size_8.set_border()
