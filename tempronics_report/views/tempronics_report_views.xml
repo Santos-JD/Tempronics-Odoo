@@ -10,6 +10,7 @@
                 <field name="name"/>
                 <field name="color"/>
                 <field name="view_wiz"/>
+                
                 <templates>
                     <t t-name="kanban-box">
                         <div t-attf-class="#{kanban_color(record.color.raw_value)}">
@@ -51,6 +52,7 @@
             </kanban>
         </field>
     </record>
+
     <!-- tempronnics.report action window -->
     <record id="model_tempronics_report_action" model="ir.actions.act_window">
         <field name="name">Tempronics Reports</field>
@@ -72,11 +74,25 @@
         <field name="arch" type="xml">
             <form string="Tempronics report">
                 <sheet>
-                    <group>
+                    <group string="General Settings">
                         <!-- Add your fields here -->
                         <field name="name"/>
                         <field name="description"/>
                         <field name="view_wiz"/>
+                    </group>
+                    <group string="Default Locations">
+                        <field name="d_locations">
+                            <tree>
+                                <field name="display_name"/>
+                            </tree>
+                        </field>
+                    </group>
+                    <group string="Default Categorys">
+                        <field name="d_categorys">
+                            <tree>
+                                <field name="name"/>
+                            </tree>
+                        </field>
                     </group>
                 </sheet>
             </form>

@@ -6,16 +6,16 @@ from odoo import models, fields
 class Partner(models.Model):
     _inherit = 'res.partner'
 
-    supplier_id = fields.Many2many('wizard.temp.report.stock.location', 'supp_wiz_rel', 'wiz', 'supp', invisible=True)
+    supplier_id = fields.Many2many('wizard.temp.report.stock.location', 'temp_supp_wiz_rel', 'wiz', 'supp', invisible=True)
 
 
 class Category(models.Model):
     _inherit = 'product.category'
 
-    obj = fields.Many2many('wizard.temp.report.stock.location', 'categ_loc_rel', 'loc', 'categ', invisible=True)
+    obj = fields.Many2many('wizard.temp.report.stock.location', 'temp_categ_loc_rel', 'loc', 'categ', invisible=True)
 
 
 class Location(models.Model):
     _inherit = 'stock.location'
 
-    obj = fields.Many2many('wizard.temp.report.stock.location',  'wh_loc_rel', 'loc', 'wh', invisible=True)
+    obj = fields.Many2many('wizard.temp.report.stock.location',  'temp_wh_loc_rel', 'loc', 'wh', invisible=True)

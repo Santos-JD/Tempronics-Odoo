@@ -1,16 +1,14 @@
 
 from datetime import datetime
 from odoo import _,models, fields, api
+from odoo.exceptions import UserError
 
 class TempReportStockLocation(models.TransientModel):
     _name = "wizard.temp.report.stock.location"
     _description = "Report Stock Location"
 
-    #Se tiene que hacer dinamico esta parte
-    _default_location = [13, 86, 18, 12, 21]
-    _default_category = [4]
-    location = fields.Many2many('stock.location', 'wh_loc_rel', 'wh', 'loc', string='Location', default=_default_location)
-    category = fields.Many2many('product.category', 'categ_loc_rel', 'categ', 'loc', string='Category',default=_default_category)
+    location = fields.Many2many('stock.location', 'temp_wh_loc_rel', 'wh', 'loc', string='Location')
+    category = fields.Many2many('product.category', 'temp_categ_loc_rel', 'categ', 'loc', string='Category')
 
     @api.multi
     def export_xls(self):
@@ -22,4 +20,5 @@ class TempReportStockLocation(models.TransientModel):
             if isinstance(datas['form'][field], tuple):
                 datas['form'][field] = datas['form'][field][0]
         if context.get('xls_export'):
-            return self.env.ref('export_stockinfo_xls.stock_xlsx').report_action(self, data=datas)
+            return self.env.ref('tempronics_report.stock_xlsx').report_action(self, data=datas)
+        

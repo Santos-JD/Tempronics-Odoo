@@ -12,6 +12,9 @@ class TempronicsReport(models.Model):
     active = fields.Boolean(default=True)
     color = fields.Integer('Color index', default=0)
     view_wiz = fields.Many2one('ir.ui.view','View')
+    d_locations = fields.Many2many('stock.location')
+    d_categorys = fields.Many2many('product.category')
+
 
 
 
@@ -25,5 +28,6 @@ class TempronicsReport(models.Model):
             'view_mode': 'form',
             'res_model': self.view_wiz.model,
             'view_id': self.view_wiz.id,
-            'target': 'new'
+            'target': 'new',
+            'context': {'default_location': self.d_locations.ids, 'default_category': self.d_categorys.ids}
         }

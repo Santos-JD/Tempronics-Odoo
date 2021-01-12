@@ -9,7 +9,7 @@
                 <form string="Wizard">
                         <group>
                             <div>
-                                <h2 class="bg-info">Location </h2>
+                                <h2 class="bg-black">Location </h2>
                                 <field name="location">
                                     <tree>
                                         <field name="display_name"/>
@@ -19,7 +19,7 @@
                         </group>
                         <group>
                             <div>
-                                <h2 class="bg-info">Category</h2>
+                                <h2 class="bg-black">Category</h2>
                                  <field name="category">
                                     <tree>
                                         <field name="name"/>

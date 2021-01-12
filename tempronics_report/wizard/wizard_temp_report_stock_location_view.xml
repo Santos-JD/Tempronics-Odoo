@@ -2,22 +2,28 @@
 <odoo>
     <data>
         <record model='ir.ui.view' id='wizard_form_temp_re_stock_loc'>
-            <field name="name">wizard.temp.report.stock.location.form</field>
+            <field name="name">Reporte 1, tempronics</field>
             <field name="model">wizard.temp.report.stock.location</field>
             <field name="arch" type="xml">
                 <form string="Wizard">
-                        <group string="Location">
-                            <field name="location" widget="many2many_tags"/>
+                        <group string="Locations">
+                            <div>
+                                <field name="location">
+                                    <tree>
+                                        <field name="display_name"/>
+                                    </tree>
+                                </field>
+                            </div>
                         </group>
-                        <notebook>
-                            <page string="Category">
-                                <field name="category">
+                        <group string = "Categorys">
+                            <div>
+                                 <field name="category">
                                     <tree>
                                         <field name="name"/>
                                     </tree>
                                 </field>
-                            </page>
-                        </notebook>
+                            </div>
+                        </group>
                     <footer>
                         <button name="export_xls" type="object" default_focus="1"
                                 string="Export Product with Stock Info" class="oe_highlight"
@@ -27,7 +33,15 @@
                 </form>
             </field>
         </record>
-
+        <report
+            id="stock_xlsx"
+            model="wizard.temp.report.stock.location"
+            string="Product Stock Info"
+            report_type="xlsx"
+            name="tempronics_report.stock_report_data"
+            file="tempronics_report.stock_report_data"
+            menu="False"
+            attachment_use="False"/>
         
         
     </data>
