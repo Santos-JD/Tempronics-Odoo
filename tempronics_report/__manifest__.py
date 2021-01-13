@@ -17,6 +17,7 @@
         'security/ir.model.access.csv',
         'views/tempronics_report_views.xml',
         'wizard/wizard_temp_report_stock_location_view.xml',
+        'wizard/wizard_temp_report_bom_location_view.xml',
     ],
     'application': True,
 }

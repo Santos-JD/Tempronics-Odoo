@@ -94,6 +94,13 @@
                             </tree>
                         </field>
                     </group>
+                    <group string = "Extras">
+                        <field name="bom_exclude_part">
+                            <tree>
+                                <field name="display_name" />
+                            </tree>
+                        </field>
+                    </group>
                 </sheet>
             </form>
         </field>

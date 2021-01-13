@@ -19,3 +19,4 @@ class Location(models.Model):
     _inherit = 'stock.location'
 
     obj = fields.Many2many('wizard.temp.report.stock.location',  'temp_wh_loc_rel', 'loc', 'wh', invisible=True)
+    obj_bom = fields.Many2many('wizard.temp.bom.stock.location',  'temp_bom_loc_rel', 'loc', 'wh', invisible=True)

@@ -14,7 +14,8 @@ class TempronicsReport(models.Model):
     view_wiz = fields.Many2one('ir.ui.view','View')
     d_locations = fields.Many2many('stock.location')
     d_categorys = fields.Many2many('product.category')
-
+    #Solo para reporte numero dos
+    bom_exclude_part = fields.Many2many('product.template',string=" Part to Exclude ")
 
 
 
@@ -29,5 +30,5 @@ class TempronicsReport(models.Model):
             'res_model': self.view_wiz.model,
             'view_id': self.view_wiz.id,
             'target': 'new',
-            'context': {'default_location': self.d_locations.ids, 'default_category': self.d_categorys.ids}
+            'context': {'default_location': self.d_locations.ids, 'default_category': self.d_categorys.ids, 'default_bom_exclude_part': self.bom_exclude_part.ids}
         }
