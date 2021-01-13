@@ -23,6 +23,8 @@ class StockReportData(models.AbstractModel):
         return l1, l2
 
     def generate_xlsx_report(self, workbook, data, lines):
+        form = data['form']
+        document_name = form['document_name']
         d = lines.category
         get_location = self.get_location(lines)
         count = len(get_location[0]) + 7
@@ -49,7 +51,7 @@ class StockReportData(models.AbstractModel):
         cat = ', '
         c = []
         d1 = d.mapped('id')
-        sheet.merge_range(0, 0, 0, 3, 'Reporte # 1: Master Inventory Data', format4)
+        sheet.merge_range(0, 0, 0, 3, document_name, format4)
         if d1:
             for i in d1:
                 c.append(self.env['product.category'].browse(i).name)

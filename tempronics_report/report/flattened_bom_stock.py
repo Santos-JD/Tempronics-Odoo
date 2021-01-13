@@ -53,6 +53,7 @@ class FlattenedBomStock(models.AbstractModel):
         id_bom = form['bom']
         qty_bom = form['qty_bom']
         bom_exclude = form['bom_exclude_part']
+        document_name = form['document_name']
 
         objectBOM = self.env['mrp.bom'].browse(id_bom)
 
@@ -96,7 +97,7 @@ class FlattenedBomStock(models.AbstractModel):
             sheet_title.append(_(name))
 
         sheet_title.append(_('Total'))
-        sheet.write(0, 0,"Reporte # 2: Requerimiento de Materiales por Numero de Parte",title_style)
+        sheet.write(0, 0,document_name,title_style)
         sheet.write_row(1, 0, sheet_title, title_style)
         sheet.freeze_panes(2, 0)
         i = 2

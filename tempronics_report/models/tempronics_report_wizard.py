@@ -30,5 +30,10 @@ class TempronicsReport(models.Model):
             'res_model': self.view_wiz.model,
             'view_id': self.view_wiz.id,
             'target': 'new',
-            'context': {'default_location': self.d_locations.ids, 'default_category': self.d_categorys.ids, 'default_bom_exclude_part': self.bom_exclude_part.ids}
+            'context': {
+                'default_location': self.d_locations.ids,
+                'default_category': self.d_categorys.ids,
+                'default_bom_exclude_part': self.bom_exclude_part.ids,
+                'default_document_name': self.name
+            }
         }

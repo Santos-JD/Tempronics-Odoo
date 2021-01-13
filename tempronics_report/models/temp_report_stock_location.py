@@ -9,7 +9,7 @@ class TempReportStockLocation(models.TransientModel):
 
     location = fields.Many2many('stock.location', 'temp_wh_loc_rel', 'wh', 'loc', string='Location')
     category = fields.Many2many('product.category', 'temp_categ_loc_rel', 'categ', 'loc', string='Category')
-    
+    document_name = fields.Char('Nombre del documento')
     @api.multi
     def export_xls(self):
         context = self._context

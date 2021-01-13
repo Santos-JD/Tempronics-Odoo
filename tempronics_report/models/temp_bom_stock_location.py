@@ -9,6 +9,7 @@ class TempBomStockLocation(models.TransientModel):
     bom = fields.Many2one('mrp.bom',string="BOM")
     qty_bom = fields.Integer('Qty to produce', default=1)
     bom_exclude_part = fields.Many2many('product.template')
+    document_name = fields.Char('Nombre del documento')
 
 
     @api.multi

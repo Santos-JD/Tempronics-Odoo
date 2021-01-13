@@ -2,12 +2,12 @@
 <odoo>
     <data>
         <record model='ir.ui.view' id='wizard_form_temp_bom_stock_loc'>
-            <field name="name">Reporte 2, BOM Location </field>
+            <field name="name">Report 2, BOM Location </field>
             <field name="model">wizard.temp.bom.stock.location</field>
             <field name="arch" type="xml">
                 <form string="Wizard">
                         <group string="Information">
-                            
+                            <field name="document_name" invisible="True" />
                             <field name="bom"/>
                             <field name="qty_bom"/>
                             <field name="location">
