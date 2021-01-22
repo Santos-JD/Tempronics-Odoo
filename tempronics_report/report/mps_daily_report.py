@@ -149,6 +149,9 @@ class MpsDaily(models.AbstractModel):
 
         for okey,order in DataOrders.items():
             for lkey,line in order.items():
+                #pintar los cuadros vacios
+                for y in range(len(sheet_title)):
+                    sheet.write(row,y+1,None,info_table_center_style)
                 sheet.write(row,1,row-5,info_table_center_style)
                 sheet.write(row,2,line['product'],info_table_center_style)
                 sheet.write(row,3,line['Obj'].product_id.name,info_table_style)
@@ -160,5 +163,5 @@ class MpsDaily(models.AbstractModel):
                 for fecha in line['Date']:
                     sheet.write(row,ColDates[fecha],line['Date'][fecha],info_table_center_style)
                 row += 1
-
+        
         
