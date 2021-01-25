@@ -84,7 +84,8 @@ class MpsDaily(models.AbstractModel):
         date_from = form['date_from']
         date_to = form['date_to']
         sheet_title = ['No.','Part No.','Description','SO #','Qty']
-        DataDates = self.rangeDate(date_from,date_to,5,len(sheet_title)+1)
+        weekdays = 5
+        DataDates = self.rangeDate(date_from,date_to,weekdays,len(sheet_title)+1)
         arrDate = DataDates['TitlesDates']
         ColDates = DataDates['Dates']
         sheet_title = sheet_title + arrDate
@@ -93,18 +94,20 @@ class MpsDaily(models.AbstractModel):
 
         title_style = workbook.add_format({ 
                                             'bold': True,
-                                            'bottom': 1,
+                                            'border': 1,
                                             'align': 'left',
                                             'font_size': 14
                                          })
 
         title_table_style = workbook.add_format({
+                                                    'border': 1,
                                                     'bold': True,
                                                     'align': 'center',
                                                     'font_size': 12    
                                                 })
 
         title_table_date_format_style = workbook.add_format({
+                                                    'border': 1,
                                                     'bold': True,
                                                     'align': 'center',
                                                     'font_size': 12    
@@ -141,6 +144,22 @@ class MpsDaily(models.AbstractModel):
 
         
         sheet.write_row(5, 1, sheet_title, title_table_style)
+        auxweek = 0
+        #merge_range
+        for date in ColDates:
+            datet  = datetime.strptime(date, '%Y-%m-%d')
+            week = datet.isocalendar()[1] #obtenemos el numero de la semana
+            weekday = datet.isocalendar()[2]
+            if week != auxweek:
+                titlerange = weekdays - weekday
+                if titlerange < 0: titlerange = 0
+
+                titlerange += ColDates[date]
+                if titlerange == ColDates[date]:
+                    sheet.write(4,titlerange,'Week '+str(week),title_table_style)
+                else:
+                    sheet.merge_range(4,ColDates[date],4,titlerange,'Week '+str(week),title_table_style)
+            auxweek = week
         #sheet.write_row(5,len(sheet_title)+1,arrDate,title_table_date_format_style)
         
         DataOrders = self.CreateDic(saleOrders)
