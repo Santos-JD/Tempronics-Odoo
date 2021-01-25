@@ -28,8 +28,8 @@ class  TempMpsDaily(models.TransientModel):
 
 
     def get_sales(self,d_from,d_to,p_ids):
-        so = self.env['sale.order.line'].search([('commitment_date','>=',d_from),('commitment_date','<=',d_to),('order_id.state','=','sale'),('display_type','=',False)])
+        so = self.env['sale.order.line'].search([('commitment_date','>=',d_from),('commitment_date','<=',d_to),('order_id.state','=','sale'),('display_type','=',False)],order="order_id desc,name asc ")
         if p_ids:
-            so = so.search([('commitment_date','>=',d_from),('commitment_date','<=',d_to),('product_id','in',p_ids),('order_id.state','=','sale'),('display_type','=',False)])
+            so = so.search([('commitment_date','>=',d_from),('commitment_date','<=',d_to),('product_id','in',p_ids),('order_id.state','=','sale'),('display_type','=',False)],order="order_id desc,name asc ")
         return so
         
