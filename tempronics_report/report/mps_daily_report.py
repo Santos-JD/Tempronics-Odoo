@@ -32,45 +32,40 @@ class MpsDaily(models.AbstractModel):
             new_day = date_from + timedelta(days=i)
             iso = new_day.isocalendar()
             week = iso[1]
-            weekday = iso[2]
-            if weekday <= week_days:
-                strdate =  str(new_day.month) +"/"+ str(new_day.day)
-                TitlesDates.append(strdate)
-                Dates[str(new_day.date())] = col
+            if week not in Dates:
+                strweek =  'Week ' + str(week)
+                TitlesDates.append(strweek)
+                Dates[week] = col
                 col += 1
-            else:
-                Dates[str(new_day.date())] = col
-        
         Data['Dates'] = Dates
         Data['TitlesDates'] = TitlesDates
         return Data
 
     def CreateDic(self,objOrders):
         OrderData = {}
-
         for order in objOrders:
             DateAux = {}
             Product = {}
             strDate = str(order.commitment_date.date())
+            week = order.commitment_date.isocalendar()[1]
             if order.order_id.name in OrderData:
                 Product = OrderData[order.order_id.name]
                 if order.product_id.id in Product: #Verificamos si existe ya el producto en product
                     DateAux = Product[order.product_id.id]['Date'] #obtenemos las fechas del producto
-                    if strDate in DateAux:
+                    if week in DateAux:
                         #Ya existe la fecha en el producto actual
                         #obtenemos la cantidad que tenga y la sumamos
-                        DateAux[strDate] += order.product_uom_qty
+                        DateAux[week] += order.product_uom_qty
                     else:
                         #Si no existe la creamos con su cantidad actual
-                        DateAux[strDate] = order.product_uom_qty
-
+                        DateAux[week] = order.product_uom_qty
                     Product[order.product_id.id]['Date'] = DateAux
                 else:
-                    DateAux[strDate] = order.product_uom_qty
-                    Product[order.product_id.id] = {'product':order.product_id.default_code,'Date': DateAux, 'Obj': order}
+                    DateAux[week] = order.product_uom_qty
+                    Product[order.product_id.id] = {'product':order.product_id.default_code,'Date': DateAux,'Obj':order}
             else:
-                DateAux[strDate] = order.product_uom_qty
-                Product[order.product_id.id] = {'product':order.product_id.default_code,'Date': DateAux, 'Obj': order}
+                DateAux[week] = order.product_uom_qty
+                Product[order.product_id.id] = {'product':order.product_id.default_code,'Date': DateAux,'Obj':order}
                 
             OrderData[order.order_id.name] = Product
         
@@ -144,7 +139,8 @@ class MpsDaily(models.AbstractModel):
 
         
         sheet.write_row(5, 1, sheet_title, title_table_style)
-        auxweek = 0
+        ### Colocar por semana
+        """auxweek = 0
         #merge_range
         for date in ColDates:
             datet  = datetime.strptime(date, '%Y-%m-%d')
@@ -159,7 +155,7 @@ class MpsDaily(models.AbstractModel):
                     sheet.write(4,titlerange,'Week '+str(week),title_table_style)
                 else:
                     sheet.merge_range(4,ColDates[date],4,titlerange,'Week '+str(week),title_table_style)
-            auxweek = week
+            auxweek = week """
         #sheet.write_row(5,len(sheet_title)+1,arrDate,title_table_date_format_style)
         
         DataOrders = self.CreateDic(saleOrders)
