@@ -139,24 +139,6 @@ class MpsDaily(models.AbstractModel):
 
         
         sheet.write_row(5, 1, sheet_title, title_table_style)
-        ### Colocar por semana
-        """auxweek = 0
-        #merge_range
-        for date in ColDates:
-            datet  = datetime.strptime(date, '%Y-%m-%d')
-            week = datet.isocalendar()[1] #obtenemos el numero de la semana
-            weekday = datet.isocalendar()[2]
-            if week != auxweek:
-                titlerange = weekdays - weekday
-                if titlerange < 0: titlerange = 0
-
-                titlerange += ColDates[date]
-                if titlerange == ColDates[date]:
-                    sheet.write(4,titlerange,'Week '+str(week),title_table_style)
-                else:
-                    sheet.merge_range(4,ColDates[date],4,titlerange,'Week '+str(week),title_table_style)
-            auxweek = week """
-        #sheet.write_row(5,len(sheet_title)+1,arrDate,title_table_date_format_style)
         
         DataOrders = self.CreateDic(saleOrders)
         
