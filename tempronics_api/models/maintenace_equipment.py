@@ -8,21 +8,34 @@ class MaintenanceEquipment(models.Model):
 
     @api.model
     def create(self,values):
-        UserError(_("Ocurrio un error al momento se generarlo para traceability\n %s" % values))
+        
+        category = self.env['maintenance.equipment.category'].browse(values['category_id'])
+        team = self.env['maintenance.team'].browse(values['maintenance_team_id'])
+        
         dataEquipment = {} # Diccionario vacio, de lo que se mandara a la pagina
         
         dataEquipment['accion'] = 'create'
-        dataEquipment['qty_multiple'] = qty
-        dataEquipment['product_qty'] = values['product_qty']
-        dataEquipment['date_planned_start'] = values['date_planned_start']
-        dataEquipment['product'] = product
+        dataEquipment['descripcion'] = values['name']
+        dataEquipment['categoria'] = category.name
+        dataEquipment['grupo'] = team.name
+        dataEquipment['fecha_asig'] = values['assign_date']
+        dataEquipment['notas'] = values['note']
+        dataEquipment['vendedor_ref'] = values['partner_ref']
+        dataEquipment['modelo'] = values['model']
+        dataEquipment['serial'] = values['serial_no']
+        dataEquipment['serial_interno'] = values['x_internal_serial']
+        
         create = super(MaintenanceEquipment,self).create(values)
-        dataEquipment['name_production'] = values['name']
-        dataEquipment['id_bom'] = values['bom_id']
+        fechacad = create.next_action_date
+        
+        dataEquipment['id_equip'] = create.id
+        dataEquipment['fecha_cad'] = fechacad.strftime("%Y-%m-%d")
+        
+        #raise UserError(_("--Debug message--\n %s" % dataEquipment + "\n--End message--"))
         
         Api = self.env['trics.config.api'].RequestsHttpApi(self._inherit,dataEquipment)
         if not Api:
-            raise  #aqui mostrar el error que ocurrio y no continuara con 
+            raise UserError(_("Ocurrio un error al momento se generarlo para traceability\n %s" % result['msj']))
 
         return create
 
