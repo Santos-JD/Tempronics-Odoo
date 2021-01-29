@@ -1,14 +1,13 @@
-# -*- coding: utf-8 -*-
-
-import datetime
+from odoo import models
 from datetime import datetime
 import pytz
-from odoo import models
 
-class StockReportXls(models.AbstractModel):
-    _name = 'report.export_stockinfo_xls.stock_report_xls.xlsx'
+class StockReportData(models.AbstractModel):
+    _name = 'report.tempronics_report.stock_report_data'
     _inherit = 'report.report_xlsx.abstract'
 
+
+    
     def get_location(self, data):
         namesshorts = ['WH/Input','WH/Stock','DGWH/Stock']
         wh = data.location.mapped('id')
@@ -24,6 +23,8 @@ class StockReportXls(models.AbstractModel):
         return l1, l2
 
     def generate_xlsx_report(self, workbook, data, lines):
+        form = data['form']
+        document_name = form['document_name']
         d = lines.category
         get_location = self.get_location(lines)
         count = len(get_location[0]) + 7
@@ -50,7 +51,7 @@ class StockReportXls(models.AbstractModel):
         cat = ', '
         c = []
         d1 = d.mapped('id')
-        sheet.merge_range(0, 0, 0, 3, 'Reporte # 1: Master Inventory Data', format4)
+        sheet.merge_range(0, 0, 0, 3, document_name, format4)
         if d1:
             for i in d1:
                 c.append(self.env['product.category'].browse(i).name)
@@ -167,6 +168,3 @@ class StockReportXls(models.AbstractModel):
             }
             lines.append(vals)
         return lines
-
-
-

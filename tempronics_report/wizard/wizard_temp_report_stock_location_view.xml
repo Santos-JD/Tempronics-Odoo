@@ -1,15 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
-
+<?xml version='1.0' encoding='utf-8'?>
 <odoo>
     <data>
-        <record model='ir.ui.view' id='wizard_form'>
-            <field name="name">wizard.stock.history.form</field>
-            <field name="model">wizard.stock.history</field>
+        <record model='ir.ui.view' id='wizard_form_temp_re_stock_loc'>
+            <field name="name">Report Stock 1 , 3</field>
+            <field name="model">wizard.temp.report.stock.location</field>
             <field name="arch" type="xml">
                 <form string="Wizard">
-                        <group>
+                    <field name="document_name" invisible="True" />
+                        <group string="Locations">
                             <div>
-                                <h2 class="bg-black">Location </h2>
                                 <field name="location">
                                     <tree>
                                         <field name="display_name"/>
@@ -17,9 +16,8 @@
                                 </field>
                             </div>
                         </group>
-                        <group>
+                        <group string = "Categorys">
                             <div>
-                                <h2 class="bg-black">Category</h2>
                                  <field name="category">
                                     <tree>
                                         <field name="name"/>
@@ -36,30 +34,16 @@
                 </form>
             </field>
         </record>
-
-        <record model='ir.actions.act_window' id='wizard_act'>
-            <field name="name">Export product stock in Excel</field>
-            <field name="res_model">wizard.stock.history</field>
-            <field name="view_type">form</field>
-            <field name="view_mode">form</field>
-            <field name="view_id" ref="wizard_form"/>
-            <field name="target">new</field>
-        </record>
-
         <report
             id="stock_xlsx"
-            model="wizard.stock.history"
+            model="wizard.temp.report.stock.location"
             string="Product Stock Info"
             report_type="xlsx"
-            name="export_stockinfo_xls.stock_report_xls.xlsx"
-            file="export_stockinfo_xls.stock_report_xls.xlsx"
+            name="tempronics_report.stock_report_data"
+            file="tempronics_report.stock_report_data"
             menu="False"
             attachment_use="False"/>
-
-        <menuitem name="Current stock in Excel"
-                  parent="stock.menu_warehouse_report"
-                  id="export_excel"
-                  action="wizard_act"
-                  sequence="3"/>
+        
+        
     </data>
 </odoo>

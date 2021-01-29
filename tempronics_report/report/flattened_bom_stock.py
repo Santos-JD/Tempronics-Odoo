@@ -1,18 +1,11 @@
-# Copyright 2018 Eficent Business and IT Consulting Services S.L.
-#   (http://www.eficent.com)
-# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
-
-import logging
 from odoo import models
 from odoo.tools.translate import _
 from datetime import datetime
 import pytz
 
-_logger = logging.getLogger(__name__)
 
-
-class FlattenedBomXlsx(models.AbstractModel):
-    _name = 'report.mrp_flattened_bom_xlsx.flattened_bom_xlsx'
+class FlattenedBomStock(models.AbstractModel):
+    _name = 'report.tempronics_report.flattened_bom_stock'
     _inherit = 'report.report_xlsx.abstract'
 
     def get_totals(self,id,locations):
@@ -29,11 +22,11 @@ class FlattenedBomXlsx(models.AbstractModel):
         totals.append(total)
         return totals
 
-    def print_flattened_bom_lines(self, bom, requirements, sheet, row, locations, cell_style):
+    def print_flattened_bom_lines(self, bom, requirements, sheet, row, locations, cell_style,qty_bom):
         i = row
         sheet.write(i, 0, bom.product_tmpl_id.default_code or '',cell_style)
         sheet.write(i, 1, bom.product_tmpl_id.name or '',cell_style)
-        sheet.write(i, 2, bom.product_qty,cell_style)
+        sheet.write(i, 2, qty_bom,cell_style)
         sheet.write(i, 3, bom.product_uom_id.name or '',cell_style)
         sheet.write(i, 4, bom.product_tmpl_id.standard_price or '',cell_style)
         totals = self.get_totals(bom.product_tmpl_id.id,locations)
@@ -53,6 +46,15 @@ class FlattenedBomXlsx(models.AbstractModel):
         return i
 
     def generate_xlsx_report(self, workbook, data, objects):
+        form = data['form']
+        locs = form['location']
+        id_bom = form['bom']
+        qty_bom = form['qty_bom']
+        bom_exclude = form['bom_exclude_part']
+        document_name = form['document_name']
+
+        objectBOM = self.env['mrp.bom'].browse(id_bom)
+
         sheet = workbook.add_worksheet(_('Flattened BOM'))
         sheet.set_landscape()
         sheet.fit_to_pages(0, 1)
@@ -74,14 +76,15 @@ class FlattenedBomXlsx(models.AbstractModel):
         cell_red_style = workbook.add_format({'border':1,'align':'center',
                                                 'bg_color': '#FFC7CE',
                                                 'font_color': '#9C0006'})
-        locations = self.env['stock.location'].search([('id', 'in', [13, 86, 18, 12, 21])])
+        locations = self.env['stock.location'].search([('id', 'in', locs)])
         user = self.env['res.users'].browse(self.env.uid)
         tz = pytz.timezone(user.tz)
         time = pytz.utc.localize(datetime.now()).astimezone(tz)
-        sheet.merge_range(0, 0, 0, 3, 'Reporte # 2: Requerimiento de Materiales por Numero de Parte', title_style)
+        sheet.merge_range(0, 0, 0, 3, document_name, title_style)
         sheet.merge_range('A4:C4', 'Report Date: ' + str(time.strftime("%Y-%m-%d %H:%M %p")), title_style)
 
-        sheet_title = [_('Product Reference'),
+        sheet_title = [
+                       _('Product Reference'),
                        _('Product Name'),
                        _('Quantity'),
                        _('UM'),
@@ -97,19 +100,51 @@ class FlattenedBomXlsx(models.AbstractModel):
             sheet_title.append(_(name))
 
         sheet_title.append(_('Total'))
-        #sheet.write(0, 0,"Reporte # 2: Requerimiento de Materiales por Numero de Parte",title_style)
         sheet.write_row(5, 0, sheet_title, title_style)
         i = 6
 
-        for o in objects:
+        for o in objectBOM:
             # We need to calculate the totals for the BoM qty and UoM:
             starting_factor = o.product_uom_id._compute_quantity(
                 o.product_qty, o.product_tmpl_id.uom_id, round=False)
-            totals = o._get_flattened_totals(factor=starting_factor)
-            i = self.print_flattened_bom_lines(o, totals, sheet, i, locations, cell_style)
+            totals = self.get_flattened_totals(factor=qty_bom, ObjB = o , bom_exclude= bom_exclude)
+            i = self.print_flattened_bom_lines(o, totals, sheet, i, locations, cell_style,qty_bom)
 
         #Se encarga de seleccionar toda el aera de las cantidades con la condicion si, el valor es < a 0 coloca el estilo rojo
         sheet.conditional_format(2,6,i,len(locations)+6,{'type':     'cell',
                                           'criteria': '<',
                                           'value':    0,
                                           'format':   cell_red_style})
+
+    def get_flattened_totals(self, factor=1, totals=None, ObjB=None, bom_exclude = []):
+        """Calculate the **unitary** product requirements of flattened BOM.
+        *Unit* means that the requirements are computed for one unit of the
+        default UoM of the product.
+        :returns: dict: keys are components and values are aggregated quantity
+        in the product default UoM.
+        """
+        ObjB.ensure_one()
+        if totals is None:
+            totals = {}
+        factor /= ObjB.product_uom_id._compute_quantity(
+            ObjB.product_qty, ObjB.product_tmpl_id.uom_id, round=False)
+        for line in ObjB.bom_line_ids:
+            sub_bom = ObjB._bom_find(product=line.product_id)
+            if sub_bom and sub_bom.product_tmpl_id.id not in bom_exclude: # no quieren ver el BOM de la cadena
+                new_factor = factor * line.product_uom_id._compute_quantity(
+                    line.product_qty, line.product_id.uom_id, round=False)
+                self.get_flattened_totals(new_factor, totals, sub_bom, bom_exclude)
+            else:
+                if totals.get(line.product_id):
+                    totals[line.product_id] += factor * \
+                        line.product_uom_id._compute_quantity(
+                            line.product_qty,
+                            line.product_id.uom_id,
+                            round=False)
+                else:
+                    totals[line.product_id] = factor * \
+                        line.product_uom_id._compute_quantity(
+                            line.product_qty,
+                            line.product_id.uom_id,
+                            round=False)
+        return totals
