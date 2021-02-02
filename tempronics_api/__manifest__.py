@@ -1,6 +1,6 @@
 {
     'name': 'Tempronics API',
-    'version': '12.0.2.0.2',
+    'version': '12.0.2.0.4',
     'category': 'Manufacturing',
     'author': "Jose Monroy",
     'website': 'www.tempronics.com',
@@ -9,7 +9,8 @@
         'base',
         'mrp',
         'product',
-        'stock'
+        'stock',
+        'maintenance'
     ],
     'data': [
         'security/ir.model.access.csv',

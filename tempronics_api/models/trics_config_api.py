@@ -35,3 +35,12 @@ class TricsConfigApi(models.Model):
             raise UserError(_("Ocurrio un error en realizar la peticion al servidor remoto \n %s" % err))
         except json.JSONDecodeError as e:
             raise UserError(_("No se recibio un formato correcto para convertir \n %s \n %s" % (e,resultText)))
+    
+    
+    def jsonconvert(self,data):
+        return json.dumps(data)
+
+    def sync_data_api(self):
+        namemodel = self.model.model
+        modelv = self.env[namemodel]
+        modelv.sync_data_api()

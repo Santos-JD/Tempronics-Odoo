@@ -34,12 +34,21 @@
             <field name="arch" type="xml">
                 <form string="Direccion de API">
                     <sheet>
-                        <group>
+                        <group string="Configuracion">
                             <field name="name"/>
                             <field name="url"/>
                             <field name="model"/>
                             <field name="active" widget="boolean_toggle" />
+                            
+                            
                             <!-- Add your fields here -->
+                        </group>
+                        <group string="Sync">
+                                <p> Actualizara los datos que se encuentran actualmente en la base de datos de odoo de este modelo, dependiendo la funcion de la API,
+                                    Se recomienda usar solamente cuando se crea por primera vez la API, o en raro caso que hagan falta datos.
+                            
+                                </p>
+                                <button string="Sync Data" type="object" name="sync_data_api" icon="fa-refresh" class="btn btn-danger oe_stat_button" />
                         </group>
                     </sheet>
                 </form>
