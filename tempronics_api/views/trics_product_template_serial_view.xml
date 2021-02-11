@@ -7,7 +7,7 @@
             <field name="inherit_id" ref="product.product_template_form_view"/>
             <field name="arch" type="xml">
                     <notebook position="inside">
-                        <page string="Traceability System" attrs="{'invisible': [('purchase_ok', '=', True)]}">
+                        <page string="Traceability System">
                             <group>
                                 <field name="trics_serial" />
                                 <field name="serial_group" attrs="{'invisible': [('trics_serial', '=', False)],'required': [('trics_serial', '!=', False)]}"  />
