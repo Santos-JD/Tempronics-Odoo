@@ -39,7 +39,7 @@ class MaintenancePlan(models.Model):
         ('month', 'Month(s)'),
         ('year', 'Year(s)')],
         string='Recurrence',
-        default='year',
+        default='month',
         help="Let the event automatically repeat at that interval step")
     duration = fields.Float(string='Duration (hours)',
                             help='Maintenance duration in hours')
@@ -60,7 +60,7 @@ class MaintenancePlan(models.Model):
         ('month', 'Month(s)'),
         ('year', 'Year(s)')],
         string='Planning Horizon step',
-        default='year',
+        default='month',
         help="Let the event automatically repeat at that interval")
     note = fields.Html('Note')
     maintenance_ids = fields.One2many(
