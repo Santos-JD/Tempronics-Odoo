@@ -101,6 +101,9 @@
                             </tree>
                         </field>
                     </group>
+                    <group string="Obsolete">
+                        <field name="obsolete" />
+                    </group>
                 </sheet>
             </form>
         </field>

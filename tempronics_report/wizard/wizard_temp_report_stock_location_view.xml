@@ -6,7 +6,17 @@
             <field name="model">wizard.temp.report.stock.location</field>
             <field name="arch" type="xml">
                 <form string="Wizard">
+                    <field name="obsolete" invisible="True" />
                     <field name="document_name" invisible="True" />
+                        <group string="Obsolete" attrs="{'invisible' : [('obsolete','=',True)]}">
+                            <group>
+                                <field name="product_active" />
+                            </group>
+                            <group>
+                                <field name="interval" />
+                                <field name="interval_type" />
+                            </group>
+                        </group>
                         <group string="Locations">
                             <div>
                                 <field name="location">

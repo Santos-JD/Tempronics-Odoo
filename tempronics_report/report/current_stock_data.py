@@ -1,5 +1,6 @@
-from odoo import models
+from odoo import _,models
 from datetime import datetime
+from odoo.exceptions import UserError
 import pytz
 
 class StockReportData(models.AbstractModel):
@@ -138,7 +139,7 @@ class StockReportData(models.AbstractModel):
 
         else:
             categ_products = self.env['product.product'].search([])
-        product_ids = tuple([pro_id.id for pro_id in categ_products])
+        #product_ids = tuple([pro_id.id for pro_id in categ_products])
     
         for obj in categ_products:
             virtual_available = obj.with_context({'location': location}).virtual_available
