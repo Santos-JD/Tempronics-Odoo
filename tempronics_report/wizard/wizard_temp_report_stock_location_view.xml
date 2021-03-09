@@ -8,9 +8,9 @@
                 <form string="Wizard">
                     <field name="obsolete" invisible="True" />
                     <field name="document_name" invisible="True" />
-                        <group string="Obsolete" attrs="{'invisible' : [('obsolete','=',True)]}">
+                        <group string="Obsolete" attrs="{'invisible' : [('obsolete','=',False)]}">
                             <group>
-                                <field name="product_active" />
+                                <field name="product_archived" />
                             </group>
                             <group>
                                 <field name="interval" />

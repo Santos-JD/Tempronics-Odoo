@@ -11,10 +11,10 @@ class TempReportStockLocation(models.TransientModel):
     category = fields.Many2many('product.category', 'temp_categ_loc_rel', 'categ', 'loc', string='Category')
     document_name = fields.Char('Nombre del documento')
     obsolete = fields.Boolean(default=False)
-    product_active = fields.Boolean(string="Product Active",default=True)
+    product_archived = fields.Boolean(string="Product Archived",default=True)
     interval = fields.Integer(string='Interval',
                               default=6,
-                              help='Interval between each maintenance')
+                              help='Interval')
     interval_type = fields.Selection([
         ('day', 'Day(s)'),
         ('week', 'Week(s)'),
@@ -40,10 +40,11 @@ class TempReportStockLocation(models.TransientModel):
         """
 
         Algo
-        {'ids': [2], 'model': 'wizard.temp.report.stock.location', 'form': 
-        {'id': 7, 'location': [13, 86, 18, 12, 21], 'category': [4], 'document_name': 'Report #1 Master Inventory Data', 'create_uid': 49, 'create_date': 
-        datetime.datetime(2021, 2, 18, 23, 19, 37, 430394), 'write_uid': 49, 'write_date': datetime.datetime(2021, 2, 18, 23, 19, 37, 430394), 
-        'display_name': 'wizard.temp.report.stock.location,7', '__last_update': datetime.datetime(2021, 2, 18, 23, 19, 37, 430394)}}
+        {   'ids': [2], 'model': 'wizard.temp.report.stock.location', 'form': 
+            {'id': 7, 'location': [13, 86, 18, 12, 21], 'category': [4], 'document_name': 'Report #1 Master Inventory Data', 'create_uid': 49, 'create_date': 
+            datetime.datetime(2021, 2, 18, 23, 19, 37, 430394), 'write_uid': 49, 'write_date': datetime.datetime(2021, 2, 18, 23, 19, 37, 430394), 
+            'display_name': 'wizard.temp.report.stock.location,7', '__last_update': datetime.datetime(2021, 2, 18, 23, 19, 37, 430394)}
+        }
         Fin algo
         Otro algo wizard.temp.report.stock.location(7,)
         Fin del otro algo

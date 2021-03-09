@@ -1,6 +1,7 @@
 from odoo import _,models
 from datetime import datetime
 from odoo.exceptions import UserError
+from dateutil.relativedelta import relativedelta
 import pytz
 
 class StockReportData(models.AbstractModel):
@@ -9,30 +10,29 @@ class StockReportData(models.AbstractModel):
 
 
     
-    def get_location(self, data):
-        namesshorts = ['WH/Input','WH/Stock','DGWH/Stock']
-        wh = data.location.mapped('id')
-        obj = self.env['stock.location'].search([('id', 'in', wh)])
-        l1 = []
-        l2 = []
-        for j in obj:
-            name = j.display_name
-            if name not in namesshorts:
-                name = j.name
-            l1.append(name)
-            l2.append(j.id)
-        return l1, l2
+    def get_totals(self,id,locations):
+        total = 0
+        totals = []
+        product = self.env['product.product'].search([('product_tmpl_id', '=', id)])
+        for location in locations:
+            virtual_available = product.with_context({'location': location.id}).virtual_available
+            outgoing_qty = product.with_context({'location': location.id}).outgoing_qty
+            incoming_qty = product.with_context({'location': location.id}).incoming_qty
+            available_qty = virtual_available + outgoing_qty - incoming_qty
+            total = total + available_qty 
+            totals.append(available_qty)
+        totals.append(total)
+        return totals
 
     def generate_xlsx_report(self, workbook, data, lines):
         form = data['form']
         document_name = form['document_name']
         d = lines.category
-        get_location = self.get_location(lines)
-        count = len(get_location[0]) + 7
+        
         comp = self.env.user.company_id.name
         sheet = workbook.add_worksheet('Stock Info')
         format0 = workbook.add_format({'font_size': 20, 'align': 'center', 'bold': True})
-        format1 = workbook.add_format({'font_size': 14, 'align': 'vcenter', 'bold': True})
+        format1 = workbook.add_format({'font_size': 12, 'align': 'vcenter', 'bold': True})
         format11 = workbook.add_format({'font_size': 12, 'align': 'center', 'bold': True})
         format21 = workbook.add_format({'font_size': 10, 'align': 'center', 'bold': True})
         format3 = workbook.add_format({'bottom': True, 'top': True, 'font_size': 12})
@@ -40,14 +40,16 @@ class StockReportData(models.AbstractModel):
         font_size_8 = workbook.add_format({'font_size': 8, 'align': 'center'})
         font_size_8_l = workbook.add_format({'font_size': 8, 'align': 'left'})
         font_size_8_r = workbook.add_format({'font_size': 8, 'align': 'right'})
-        red_mark = workbook.add_format({'font_size': 8, 'bg_color': 'red'})
+        #estilo rojo
+        cell_red_style = workbook.add_format({'border':1,'align':'center',
+                                                'bg_color': '#FFC7CE',
+                                                'font_color': '#9C0006'})
         justify = workbook.add_format({'font_size': 12})
         format3.set_align('center')
         justify.set_align('justify')
         format1.set_align('center')
         format1.set_border()
-        
-        red_mark.set_align('center')
+        sheet.set_zoom(80)
         w_house = ', '
         cat = ', '
         c = []
@@ -66,23 +68,38 @@ class StockReportData(models.AbstractModel):
         tz = pytz.timezone(user.tz)
         time = pytz.utc.localize(datetime.now()).astimezone(tz)
         sheet.merge_range('A4:G4', 'Report Date: ' + str(time.strftime("%Y-%m-%d %H:%M %p")), format1)
-        sheet.merge_range(4, 8, 4, count, 'Locations', format1)
-        sheet.merge_range('A5:H5', 'Product Information', format11)
+        
+        sheet.merge_range('A5:H5', 'Product Information', format1)
         w_col_no = 8
         w_col_no1 = 8
-        for i in get_location[0]:
-            sheet.write(5, w_col_no1, i, format11)
-            w_col_no1 = w_col_no1 + 1
-        format21.set_border()
-        sheet.write(5, 0, 'SKU', format21)
-        sheet.write(5, 1,'Name',format21)
-        sheet.write(5, 2,'Category',format21)
-        sheet.write(5, 3, 'Cost Price', format21)
-        sheet.write(5, 4, 'UM', format21) #unidad de medida
-        sheet.write(5, 5, 'LT', format21) #LiteTime
-        sheet.write(5, 6, 'Supplier', format21)
-        sheet.write(5, 7, 'Country', format21)
-        sheet.write(5,count+1,'Total',format21)
+        
+
+
+        sheet_title = [
+            _('SKU'),
+            _('Name'),
+            _('Category'),
+            _('Cost Price'),
+            _('UM'),
+            _('LT'),
+            _('Supplier'),
+            _('Country'),
+
+        ]
+
+        namesshorts = ['WH/Input','WH/Stock','DGWH/Stock']
+        locations = self.env['stock.location'].search([('id', 'in', lines.location.mapped('id'))])
+
+        for location in locations:
+            name = location.display_name
+            if name not in namesshorts:
+                name = location.name
+            sheet_title.append(_(name))
+        sheet_title.append(_('Total'))
+        sheet.merge_range(4, 8, 4, len(locations)+8, 'Locations', format1)
+        sheet.write_row(5, 0, sheet_title, format1)
+
+
         #sheet.write(5,count+2,'Reserved',format21)
         #sheet.write(5,count+3,'BAL',format21)
         sheet.set_column(1, 1, 42)
@@ -92,46 +109,37 @@ class StockReportData(models.AbstractModel):
         sheet.set_column(5, 5, 3)
         sheet.set_column(6, 6, 34)
         sheet.set_column(7, 7, 7)
-        sheet.set_column(8, count+1, 14)
+        sheet.set_column(8, len(sheet_title), 14)
         prod_row = 6
         prod_col = 0
         font_size_8.set_border()
         font_size_8_l.set_border()
         font_size_8_r.set_border()
-        for i in get_location[1]:
-            get_line = self.get_lines(d, i)
-            for each in get_line:
-                sheet.write(prod_row, prod_col, each['sku'], font_size_8)
-                #sheet.merge_range(prod_row, prod_col + 1, prod_row, prod_col + 3, each['name'], font_size_8_l)
-                sheet.write(prod_row,prod_col + 1, each['name'], font_size_8_l)
-                #sheet.merge_range(prod_row, prod_col + 2, prod_row, prod_col + 5, each['category'], font_size_8_l)
-                sheet.write(prod_row,prod_col + 2, each['category'], font_size_8)
-                sheet.write(prod_row, prod_col + 3, each['cost_price'], font_size_8)
-                sheet.write(prod_row, prod_col + 4, each['um'], font_size_8)
-                sheet.write(prod_row, prod_col + 5, each['lt'], font_size_8)
-                sheet.write(prod_row, prod_col + 6, each['vendor'], font_size_8)
-                sheet.write(prod_row, prod_col + 7, each['country'], font_size_8)
-                prod_row = prod_row + 1
-            break
-        prod_row = 6
-        prod_col = 8
-        red_mark.set_border()
-        
-        for i in get_location[1]:
-            get_line = self.get_lines(d, i)
-            for each in get_line:
-                if each['available'] < 0:
-                    sheet.write(prod_row, prod_col, each['available'], red_mark)
-                else:
-                    sheet.write(prod_row, prod_col, each['available'], font_size_8)
-                prod_row = prod_row + 1
-            prod_row = 6
-            prod_col = prod_col + 1
-        
 
-            # continue
+        obsolete = form['obsolete']
+        relative = self.get_relativedelta(form['interval'],form['interval_type'])
+        relative = time + relative
 
-    def get_lines(self, data, location):
+
+        for product in self.get_producs(d,obsolete,relative):
+            sheet.write(prod_row, 0, product['sku'], font_size_8)
+            sheet.write(prod_row,1, product['name'], font_size_8_l)
+            sheet.write(prod_row,2, product['category'], font_size_8)
+            sheet.write(prod_row,3, product['cost_price'], font_size_8)
+            sheet.write(prod_row,4, product['um'], font_size_8)
+            sheet.write(prod_row,5, product['lt'], font_size_8)
+            sheet.write(prod_row,6, product['vendor'], font_size_8)
+            sheet.write(prod_row,7, product['country'], font_size_8)
+            totals = self.get_totals(product['id'],locations)
+            sheet.write_row(prod_row,8,totals,font_size_8)
+            prod_row = prod_row + 1
+
+        sheet.conditional_format(7,8,prod_row,len(locations)+8,{'type':     'cell',
+                                          'criteria': '<',
+                                          'value':    0,
+                                          'format':   cell_red_style})
+
+    def get_producs(self, data,obsolete,relative):
         lines = []
         categ_id = data.mapped('id')
         if categ_id:
@@ -140,12 +148,11 @@ class StockReportData(models.AbstractModel):
         else:
             categ_products = self.env['product.product'].search([])
         #product_ids = tuple([pro_id.id for pro_id in categ_products])
-    
+
+        if obsolete:
+            categ_products = self.get_obsolete(categ_products,relative)
+
         for obj in categ_products:
-            virtual_available = obj.with_context({'location': location}).virtual_available
-            outgoing_qty = obj.with_context({'location': location}).outgoing_qty
-            incoming_qty = obj.with_context({'location': location}).incoming_qty
-            available_qty = virtual_available + outgoing_qty - incoming_qty
             vendor = 'N/A'
             lt = 'N/A'
             vendorname = 'N/A'
@@ -156,6 +163,7 @@ class StockReportData(models.AbstractModel):
                 country = obj.seller_ids[0].name.country_id.code
 
             vals = {
+                'id': obj.id,
                 'sku': obj.default_code,
                 'name': obj.name,
                 'category': obj.categ_id.name,
@@ -164,8 +172,26 @@ class StockReportData(models.AbstractModel):
                 'um': obj.uom_id.name,
                 'vendor': vendorname,
                 'country': country,
-                'available': available_qty,
-                
             }
             lines.append(vals)
         return lines
+    
+    def get_relativedelta(self,interval, step):
+        if step == 'day':
+            return relativedelta(days=-interval)
+        elif step == 'week':
+            return relativedelta(weeks=-interval)
+        elif step == 'month':
+            return relativedelta(months=-interval)
+        elif step == 'year':
+            return relativedelta(years=-interval)
+
+
+    def get_obsolete(self,categ_products, interval):
+        data = []
+        for product in categ_products:
+            lines = self.env['stock.move.line'].search([('date','>=',interval),('product_id','=',product.id)],count=True,limit=1)
+            if lines == 0:
+                data.append(product)
+
+        return data
