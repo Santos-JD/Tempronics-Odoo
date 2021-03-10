@@ -11,7 +11,7 @@ class TempReportStockLocation(models.TransientModel):
     category = fields.Many2many('product.category', 'temp_categ_loc_rel', 'categ', 'loc', string='Category')
     document_name = fields.Char('Nombre del documento')
     obsolete = fields.Boolean(default=False)
-    product_archived = fields.Boolean(string="Product Archived",default=True)
+    product_active = fields.Boolean(string="Product Active",default=True)
     interval = fields.Integer(string='Interval',
                               default=6,
                               help='Interval')

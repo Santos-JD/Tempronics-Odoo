@@ -117,11 +117,12 @@ class StockReportData(models.AbstractModel):
         font_size_8_r.set_border()
 
         obsolete = form['obsolete']
+        product_active = form['product_active']
         relative = self.get_relativedelta(form['interval'],form['interval_type'])
         relative = time + relative
+        sheet.freeze_panes(6,0)
 
-
-        for product in self.get_producs(d,obsolete,relative):
+        for product in self.get_producs(d,obsolete,product_active,relative):
             sheet.write(prod_row, 0, product['sku'], font_size_8)
             sheet.write(prod_row,1, product['name'], font_size_8_l)
             sheet.write(prod_row,2, product['category'], font_size_8)
@@ -139,14 +140,14 @@ class StockReportData(models.AbstractModel):
                                           'value':    0,
                                           'format':   cell_red_style})
 
-    def get_producs(self, data,obsolete,relative):
+    def get_producs(self, data,obsolete,product_active,relative):
         lines = []
         categ_id = data.mapped('id')
         if categ_id:
-            categ_products = self.env['product.product'].search([('categ_id', 'in', categ_id)])
+            categ_products = self.env['product.product'].search([('categ_id', 'in', categ_id),('active','=',product_active)])
 
         else:
-            categ_products = self.env['product.product'].search([])
+            categ_products = self.env['product.product'].search([('active','=',product_active)])
         #product_ids = tuple([pro_id.id for pro_id in categ_products])
 
         if obsolete:
