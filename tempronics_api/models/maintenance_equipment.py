@@ -6,30 +6,28 @@ class MaintenanceEquipment(models.Model):
     @api.model
     def create(self,values):
         
-        category = self.env['maintenance.equipment.category'].browse(values['category_id'])
-        team = self.env['maintenance.team'].browse(values['maintenance_team_id'])
-        
-        dataEquipment = {} # Diccionario vacio, de lo que se mandara a la pagina
-        
-        dataEquipment['accion'] = 'create'
-        dataEquipment['descripcion'] = values['name']
-        dataEquipment['categoria'] = category.name
-        dataEquipment['grupo'] = team.name
-        dataEquipment['fecha_asig'] = values['assign_date']
-        dataEquipment['notas'] = values['note']
-        dataEquipment['vendedor_ref'] = values['partner_ref']
-        dataEquipment['modelo'] = values['model']
-        dataEquipment['serial'] = values['serial_no']
-        dataEquipment['serial_interno'] = values['x_internal_serial']
-        
+        #category = self.env['maintenance.equipment.category'].browse(values['category_id'])
+        #team = self.env['maintenance.team'].browse(values['maintenance_team_id'])
         create = super(MaintenanceEquipment,self).create(values)
         if create.next_action_date:
             fechacad = create.next_action_date.strftime("%Y-%m-%d")
         else:
             fechacad = '0000-00-00'
+
+        dataEquipment = {} # Diccionario vacio, de lo que se mandara a la pagina
+        
+        dataEquipment['accion'] = 'create'
         dataEquipment['id_equip'] = create.id
         dataEquipment['fecha_cad'] = fechacad
-        
+        dataEquipment['descripcion'] = create.name
+        dataEquipment['categoria'] = create.category_id.name
+        dataEquipment['grupo'] = create.maintenance_team_id.name
+        dataEquipment['fecha_asig'] = create.assign_date.strftime("%Y-%m-%d")
+        dataEquipment['notas'] = create.note
+        dataEquipment['vendedor_ref'] = create.partner_ref
+        dataEquipment['modelo'] = create.model
+        dataEquipment['serial'] = create.serial_no
+        dataEquipment['serial_interno'] = create.x_internal_serial
         #raise UserError(_("--Debug message--\n %s" % dataEquipment + "\n--End message--"))
         
         Api = self.env['trics.config.api']
