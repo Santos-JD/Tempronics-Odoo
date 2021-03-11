@@ -13,7 +13,7 @@ class StockReportData(models.AbstractModel):
     def get_totals(self,id,locations):
         total = 0
         totals = []
-        product = self.env['product.product'].search([('product_tmpl_id', '=', id)])
+        product = self.env['product.product'].search([('id', '=', id)])
         for location in locations:
             virtual_available = product.with_context({'location': location.id}).virtual_available
             outgoing_qty = product.with_context({'location': location.id}).outgoing_qty
