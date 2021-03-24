@@ -11,7 +11,9 @@
         'mrp',
         'product',
         'stock',
-        'report_xlsx'
+        'report_xlsx',
+        'email',
+        'contacts'
     ],
     'data': [
         'security/ir.model.access.csv',

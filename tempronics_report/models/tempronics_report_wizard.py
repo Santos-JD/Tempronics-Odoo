@@ -1,5 +1,6 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
+import base64
 
 
 class TempronicsReport(models.Model):
@@ -39,3 +40,23 @@ class TempronicsReport(models.Model):
                 'default_obsolete': self.obsolete
             }
         }
+
+    def _cron_send_email_report_1(self):
+        report = self.env['tempronics.report'].browse(2)
+        values = {
+            'form':{
+                'location' : report.d_locations.ids,
+                'category' : report.d_categorys.ids,
+                'docuemnt_name' : report.docuemnt_name,
+                'obsolete' : report.obsolete,
+                'product_active' : True,
+                'interval' : 6,
+                'interval_type' : 'month'
+            }
+        }
+
+        wizard = self.env['wizard.temp.report.stock.location'].create(values['form'])
+        #creamos el excel
+        archivo = self.ref('tempronics_report.stock_xlsx').render_xlsx(wizard.id,values)
+        #convertimos el archivo a Base64 para poder enviarlo por correo
+        archivo = base64.b64encode(archivo[0])
