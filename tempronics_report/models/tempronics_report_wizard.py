@@ -41,12 +41,13 @@ class TempronicsReport(models.Model):
             }
         }
 
-    def _cron_send_email_report_1(self):
+    def _cron_send_email_report_1(self,categorys=[]):
+        #6,4,5,16
         report = self.env['tempronics.report'].browse(2)
         values = {
             'form':{
                 'location' : report.d_locations.ids,
-                'category' : report.d_categorys.ids,
+                'category' : categorys,
                 'document_name' : report.name,
                 'obsolete' : report.obsolete,
                 'product_active' : True,
@@ -64,13 +65,14 @@ class TempronicsReport(models.Model):
         email_template_id = self.env.ref('tempronics_report.email_template_report_stock_month').id
         email_template = self.env['mail.template'].browse(email_template_id)
         email_template.attachment_ids = False
-        attachment = {
+        attachment_values = {
             'name' : report.name,
             'datas' : archivo,
             'datas_fname' : 'tempronics_report_stock_month.xlsx',
             'type' : 'binary'
         }
-        id_att = self.env['ir.attachment'].create(attachment)
-        email_template.attachment_ids = [(id_att.id)]
+        attachment = self.env['ir.attachment'].create(attachment_values)
+        email_template.attachment_ids = [(attachment.id)]
         email_template.send_mail(report.id,force_send=True)
+        attachment.unlink()
         
