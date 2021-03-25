@@ -47,7 +47,7 @@ class TempronicsReport(models.Model):
             'form':{
                 'location' : report.d_locations.ids,
                 'category' : report.d_categorys.ids,
-                'docuemnt_name' : report.docuemnt_name,
+                'document_name' : report.name,
                 'obsolete' : report.obsolete,
                 'product_active' : True,
                 'interval' : 6,
@@ -57,6 +57,20 @@ class TempronicsReport(models.Model):
 
         wizard = self.env['wizard.temp.report.stock.location'].create(values['form'])
         #creamos el excel
-        archivo = self.ref('tempronics_report.stock_xlsx').render_xlsx(wizard.id,values)
+        archivo = self.env.ref('tempronics_report.stock_xlsx').render_xlsx(wizard.id,values)
         #convertimos el archivo a Base64 para poder enviarlo por correo
         archivo = base64.b64encode(archivo[0])
+
+        email_template_id = self.env.ref('tempronics_report.email_template_report_stock_month').id
+        email_template = self.env['mail.template'].browse(email_template_id)
+        email_template.attachment_ids = False
+        attachment = {
+            'name' : report.name,
+            'datas' : archivo,
+            'datas_fname' : 'tempronics_report_stock_month.xlsx',
+            'type' : 'binary'
+        }
+        id_att = self.env['ir.attachment'].create(attachment)
+        email_template.attachment_ids = [(id_att.id)]
+        email_template.send_mail(report.id,force_send=True)
+        
