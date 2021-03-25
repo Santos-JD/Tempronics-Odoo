@@ -141,7 +141,7 @@ class StockReportData(models.AbstractModel):
             sheet.write_row(prod_row,10,totals,font_size_8)
             prod_row = prod_row + 1
 
-        sheet.conditional_format(7,10,prod_row,len(locations)+10,{'type':     'cell',
+        sheet.conditional_format(6,10,prod_row,len(locations)+10,{'type':     'cell',
                                           'criteria': '<',
                                           'value':    0,
                                           'format':   cell_red_style})
