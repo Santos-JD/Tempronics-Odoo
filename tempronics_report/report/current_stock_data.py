@@ -69,7 +69,7 @@ class StockReportData(models.AbstractModel):
         time = pytz.utc.localize(datetime.now()).astimezone(tz)
         sheet.merge_range('A4:G4', 'Report Date: ' + str(time.strftime("%Y-%m-%d %H:%M %p")), format1)
         
-        sheet.merge_range('A5:H5', 'Product Information', format1)
+        sheet.merge_range('A5:J5', 'Product Information', format1)
         w_col_no = 8
         w_col_no1 = 8
         
@@ -82,6 +82,8 @@ class StockReportData(models.AbstractModel):
             _('Cost Price'),
             _('UM'),
             _('LT'),
+            _('MIN'),
+            _('MAX'),
             _('Supplier'),
             _('Country'),
 
@@ -96,7 +98,7 @@ class StockReportData(models.AbstractModel):
                 name = location.name
             sheet_title.append(_(name))
         sheet_title.append(_('Total'))
-        sheet.merge_range(4, 8, 4, len(locations)+8, 'Locations', format1)
+        sheet.merge_range(4, 10, 4, len(locations)+10, 'Locations', format1)
         sheet.write_row(5, 0, sheet_title, format1)
 
 
@@ -107,9 +109,11 @@ class StockReportData(models.AbstractModel):
         sheet.set_column(3, 3, 10)
         sheet.set_column(4, 4, 6)
         sheet.set_column(5, 5, 3)
-        sheet.set_column(6, 6, 34)
-        sheet.set_column(7, 7, 7)
-        sheet.set_column(8, len(sheet_title), 14)
+        sheet.set_column(6, 6, 6)
+        sheet.set_column(7, 7, 6)
+        sheet.set_column(8, 8, 34)
+        sheet.set_column(9, 9, 7)
+        sheet.set_column(10, len(sheet_title), 14)
         prod_row = 6
         prod_col = 0
         font_size_8.set_border()
@@ -129,13 +133,15 @@ class StockReportData(models.AbstractModel):
             sheet.write(prod_row,3, product['cost_price'], font_size_8)
             sheet.write(prod_row,4, product['um'], font_size_8)
             sheet.write(prod_row,5, product['lt'], font_size_8)
-            sheet.write(prod_row,6, product['vendor'], font_size_8)
-            sheet.write(prod_row,7, product['country'], font_size_8)
+            sheet.write(prod_row,6, product['min'], font_size_8)
+            sheet.write(prod_row,7, product['max'], font_size_8)
+            sheet.write(prod_row,8, product['vendor'], font_size_8)
+            sheet.write(prod_row,9, product['country'], font_size_8)
             totals = self.get_totals(product['id'],locations)
-            sheet.write_row(prod_row,8,totals,font_size_8)
+            sheet.write_row(prod_row,10,totals,font_size_8)
             prod_row = prod_row + 1
 
-        sheet.conditional_format(7,8,prod_row,len(locations)+8,{'type':     'cell',
+        sheet.conditional_format(7,10,prod_row,len(locations)+10,{'type':     'cell',
                                           'criteria': '<',
                                           'value':    0,
                                           'format':   cell_red_style})
@@ -170,6 +176,8 @@ class StockReportData(models.AbstractModel):
                 'category': obj.categ_id.name,
                 'cost_price': obj.standard_price,
                 'lt': lt,
+                'min': obj.reordering_min_qty,
+                'max': obj.reordering_max_qty,
                 'um': obj.uom_id.name,
                 'vendor': vendorname,
                 'country': country,
