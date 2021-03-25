@@ -68,7 +68,7 @@ class TempronicsReport(models.Model):
         attachment_values = {
             'name' : report.name,
             'datas' : archivo,
-            'datas_fname' : 'tempronics_report_stock_month.xlsx',
+            'datas_fname' : 'monthly_stock_report_tempronics.xlsx',
             'type' : 'binary'
         }
         attachment = self.env['ir.attachment'].create(attachment_values)

@@ -2,12 +2,12 @@
 <odoo>
     <data>
          <record id="email_template_report_stock_month" model="mail.template">
-            <field name="name">Email Report Stock Month</field>
+            <field name="name">Monthly Stock Report Email</field>
             <field name="model_id" ref="tempronics_report.model_tempronics_report" />            
-            <field name="subject">Report Stock Monthly</field>
+            <field name="subject">Monthly Stock Report</field>
             <field name="body_html" type="html">
             <div>
-<span> Report Stock Monthly </span>
+<span>Monthly Stock Report</span>
 <br />
 <span> Locations </span>
 <ul>
