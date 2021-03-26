@@ -11,7 +11,9 @@
         'mrp',
         'product',
         'stock',
-        'report_xlsx'
+        'report_xlsx',
+        'mail',
+        'contacts'
     ],
     'data': [
         'security/ir.model.access.csv',
@@ -19,6 +21,7 @@
         'wizard/wizard_temp_report_stock_location_view.xml',
         'wizard/wizard_temp_report_bom_location_view.xml',
         'wizard/wizard_temp_report_mps_view.xml',
+        'data/email_template_report_stock_month.xml'
     ],
     'application': True,
 }

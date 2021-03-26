@@ -27,7 +27,7 @@ class StockReportData(models.AbstractModel):
     def generate_xlsx_report(self, workbook, data, lines):
         form = data['form']
         document_name = form['document_name']
-        d = lines.category
+        d1 = form['category']
         
         comp = self.env.user.company_id.name
         sheet = workbook.add_worksheet('Stock Info')
@@ -53,7 +53,6 @@ class StockReportData(models.AbstractModel):
         w_house = ', '
         cat = ', '
         c = []
-        d1 = d.mapped('id')
         sheet.merge_range(0, 0, 0, 3, document_name, format4)
         if d1:
             for i in d1:
@@ -64,8 +63,7 @@ class StockReportData(models.AbstractModel):
             #sheet.merge_range(1, 2, 1, 3 + len(d1), cat, format4)
             sheet.write(1, 2, cat, format4)
         
-        user = self.env['res.users'].browse(self.env.uid)
-        tz = pytz.timezone(user.tz)
+        tz = pytz.timezone('US/Arizona')
         time = pytz.utc.localize(datetime.now()).astimezone(tz)
         sheet.merge_range('A4:G4', 'Report Date: ' + str(time.strftime("%Y-%m-%d %H:%M %p")), format1)
         
@@ -90,7 +88,7 @@ class StockReportData(models.AbstractModel):
         ]
 
         namesshorts = ['WH/Input','WH/Stock','DGWH/Stock']
-        locations = self.env['stock.location'].search([('id', 'in', lines.location.mapped('id'))])
+        locations = self.env['stock.location'].search([('id', 'in', form['location'])])
 
         for location in locations:
             name = location.display_name
@@ -126,7 +124,7 @@ class StockReportData(models.AbstractModel):
         relative = time + relative
         sheet.freeze_panes(6,0)
 
-        for product in self.get_producs(d,obsolete,product_active,relative):
+        for product in self.get_producs(d1,obsolete,product_active,relative):
             sheet.write(prod_row, 0, product['sku'], font_size_8)
             sheet.write(prod_row,1, product['name'], font_size_8_l)
             sheet.write(prod_row,2, product['category'], font_size_8)
@@ -146,9 +144,8 @@ class StockReportData(models.AbstractModel):
                                           'value':    0,
                                           'format':   cell_red_style})
 
-    def get_producs(self, data,obsolete,product_active,relative):
+    def get_producs(self, categ_id,obsolete,product_active,relative):
         lines = []
-        categ_id = data.mapped('id')
         if categ_id:
             categ_products = self.env['product.product'].search([('categ_id', 'in', categ_id),('active','=',product_active)])
 
