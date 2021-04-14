@@ -22,6 +22,12 @@ class FlattenedBomStock(models.AbstractModel):
         totals.append(total)
         return totals
 
+    def get_seller(self,product):
+        vendorname = 'N/A'
+        if(product.seller_ids):
+            vendorname = product.seller_ids[0].name.name
+        return vendorname
+
     def print_flattened_bom_lines(self, bom, requirements, sheet, row, locations, cell_style,qty_bom):
         i = row
         sheet.write(i, 0, bom.product_tmpl_id.default_code or '',cell_style)
@@ -29,8 +35,9 @@ class FlattenedBomStock(models.AbstractModel):
         sheet.write(i, 2, qty_bom,cell_style)
         sheet.write(i, 3, bom.product_uom_id.name or '',cell_style)
         sheet.write(i, 4, bom.product_tmpl_id.standard_price or '',cell_style)
+        sheet.write(i, 5, self.get_seller(bom.product_tmpl_id),cell_style)
         totals = self.get_totals(bom.product_tmpl_id.id,locations)
-        sheet.write_row(i,5,totals,cell_style)
+        sheet.write_row(i,6,totals,cell_style)
         
         #sheet.write(i, 5, bom.code or '')
         i += 1
@@ -40,8 +47,9 @@ class FlattenedBomStock(models.AbstractModel):
             sheet.write(i, 2, total_qty or 0.0,cell_style)
             sheet.write(i, 3, product.uom_id.name or '',cell_style)
             sheet.write(i, 4, product.product_tmpl_id.standard_price or 0.0,cell_style)
+            sheet.write(i, 5, self.get_seller(product.product_tmpl_id),cell_style)
             totals = self.get_totals(product.product_tmpl_id.id,locations)
-            sheet.write_row(i,5,totals,cell_style)
+            sheet.write_row(i,6,totals,cell_style)
             i += 1
         return i
 
@@ -66,8 +74,9 @@ class FlattenedBomStock(models.AbstractModel):
         sheet.set_column(0, 0, 17)
         sheet.set_column(1, 1, 45)
         sheet.set_column(2, 2, 8)
-        sheet.set_column(3, 11, 13)
-        
+        sheet.set_column(3, 4, 13)
+        sheet.set_column(5, 5, 40)
+        sheet.set_column(6, 13, 13)
 
         title_style = workbook.add_format({'bold': True,
                                            'bottom': 1 ,'align': 'center','border': 1})
@@ -89,6 +98,7 @@ class FlattenedBomStock(models.AbstractModel):
                        _('Quantity'),
                        _('UM'),
                        _('Price'),
+                       _('Supplier')
                        ]
         #Requisicion de Ibarra, no quiere los nombres completos de todas las demas locaciones
         #solo estas locaciones necesitan el nombre completo, por que se pueden confundir.
