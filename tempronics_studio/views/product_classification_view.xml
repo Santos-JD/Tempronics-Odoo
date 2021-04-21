@@ -42,7 +42,7 @@
                             <label for="description" string="Description" class="oe_edit_only" />
                             <field name="description" />
                         </div>
-                        
+                        <field name="percent" />
                     </sheet>
                 </form>
             </field>

@@ -8,6 +8,7 @@ class productClassification(models.Model):
     name = fields.Char('Nombre')
     product_count = fields.Integer('# Products', compute='_compute_product_count')
     description = fields.Char('Description')
+    percent = fields.Float('Porcentaje')
 
 
     def _compute_product_count(self):
