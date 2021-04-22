@@ -10,7 +10,7 @@ class CycleCountList(models.AbstractModel):
 
 
     def generate_xlsx_report(self, workbook, data, lines):
-        
+        location = data['location']
         sheet = workbook.add_worksheet('Cycle Count List')
         format_title = workbook.add_format({'font_size': 12, 'align': 'left', 'bold': True})
         font_size_8_border = workbook.add_format({'font_size': 8, 'align': 'center'})
@@ -34,20 +34,20 @@ class CycleCountList(models.AbstractModel):
         w_col_no1 = 8
         
 
-
+        location = self.env['stock.location'].search([('id', '=', location)])
         sheet_title = [
             _('SKU'),
             _('Name'),
             _('Category'),
             _('Classification'),
             _('UM'),
-            _('WH/Sock')
+            _(location.display_name)
 
         ]
 
         sheet.write_row(5, 0, sheet_title, format_title)
         prod_row = 6
-        for product in self.GetData():
+        for product in self.GetData(location):
             sheet.write(prod_row, 0, product['sku'], font_size_8_border)
             sheet.write(prod_row,1, product['name'], font_size_8_border)
             sheet.write(prod_row,2, product['category'], font_size_8_border)
@@ -65,7 +65,7 @@ class CycleCountList(models.AbstractModel):
         sheet.set_column(4, 4, 6)
         sheet.set_column(5, 5, 10)
 
-    def GetData(self):
+    def GetData(self,location):
         #buscamos todas las clasificaciones
         classifications = self.env['product.classification'].search([])
         lines = []
@@ -85,14 +85,13 @@ class CycleCountList(models.AbstractModel):
                     'category': product.categ_id.name,
                     'classification': product.product_classification.name,
                     'um': product.uom_id.name,
-                    'stock': self.getStock(product)
+                    'stock': self.getStock(product,location)
                 }
                 lines.append(vals)
             
         return lines
 
-    def getStock(self,product):
-        location = self.env['stock.location'].search([('id', 'in', [12])])
+    def getStock(self,product,location):
         virtual_available = product.with_context({'location': location.id}).virtual_available
         outgoing_qty = product.with_context({'location': location.id}).outgoing_qty
         incoming_qty = product.with_context({'location': location.id}).incoming_qty
